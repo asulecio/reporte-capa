@@ -29,7 +29,7 @@
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
-  [hidden]{display:none!important}
+[hidden]{display:none!important}
 body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 button{font-family:inherit}
 input,select,textarea{font-family:inherit;color:inherit}
@@ -170,7 +170,6 @@ td.center,th.center{text-align:center}
 }
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .side{display:none}
   .kpis,.fields{grid-template-columns:repeat(2,1fr)}
   .field:nth-child(3){border-left:0;padding-left:0}
   .fields{row-gap:14px}
@@ -268,6 +267,56 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .panel-toggle{display:inline-flex}
 }
 @media print{.panel,.scrim,.savestate{display:none!important}.app{grid-template-columns:190px 1fr!important}.brand-text,.side-foot,.nav button span{display:block!important}}
+/* ---------- Vistas ---------- */
+.view[hidden]{display:none!important}
+.app.nopanel{grid-template-columns:220px 1fr}
+.app.nopanel .panel,.app.nopanel .scrim{display:none!important}
+@media (max-width:1500px){ .app.nopanel{grid-template-columns:68px 1fr} }
+.vhead{margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.vhead h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.stats{grid-template-columns:repeat(4,1fr)}
+.stat{padding:16px 18px}
+.stat .n{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:4px}
+.stat .l{font-size:13px;font-weight:600}
+.stat .s{font-size:12px;color:var(--muted);margin-top:2px}
+.home2{grid-template-columns:1.2fr 1fr}
+.hbar{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;font-size:12.5px;margin-bottom:9px}
+.hbar .track{height:9px;background:var(--line);border-radius:10px;overflow:hidden}
+.hbar .track i{display:block;height:100%;border-radius:10px}
+.hbar b{text-align:right;font-weight:700}
+.rowlink{cursor:pointer}
+.rowlink:hover td{background:var(--head)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar .search{flex:1;min-width:220px;background:var(--card)}
+.toolbar select{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:13px;background:var(--card)}
+.pill.inline{display:inline-block}
+.form-grid{grid-template-columns:1fr 1fr}
+.frow{display:grid;gap:8px;grid-template-columns:1fr 150px 32px;align-items:center;margin-bottom:8px}
+.frow.plan{grid-template-columns:1.2fr 1fr 0.8fr 32px}
+.frow.one{grid-template-columns:1fr 32px}
+.tin{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--card);outline:none}
+.tin:focus{border-color:var(--blue)}
+.xbtn{border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;border-radius:6px;height:32px}
+.xbtn:hover{background:var(--head);color:#c2503f}
+.hint2{font-size:12.5px;color:var(--muted);margin:-6px 0 14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:8px 14px;font-size:13px;cursor:pointer;color:var(--text)}
+.seg button.on{background:#1f63bf;color:#fff}
+.flabel{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.fblock{margin-bottom:18px}
+.msg{font-size:12.5px;color:var(--muted);min-height:18px}
+@media (max-width:1100px){ .stats{grid-template-columns:repeat(2,1fr)} .home2,.form-grid{grid-template-columns:1fr} }
+@media (max-width:900px){
+  .app.nopanel{grid-template-columns:1fr}
+  .side{display:flex!important;position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:30}
+  .side .brand,.side .side-foot,.side .leaf{display:none}
+  .nav{display:flex;width:100%;justify-content:space-around;gap:2px}
+  .nav button{flex-direction:column;gap:3px;padding:7px 6px;font-size:10.5px;flex:1;justify-content:center}
+  .nav button span{display:block!important}
+  .main{padding-bottom:90px}
+}
+@media (max-width:520px){ .stats{grid-template-columns:1fr 1fr} .hbar{grid-template-columns:100px 1fr 40px} .frow{grid-template-columns:1fr 32px} .frow .short{display:none} .frow.plan{grid-template-columns:1fr 32px} .frow.plan .tin:not(:first-child){grid-column:1} }
+@media print{ .view:not(#view-collab){display:none!important} }
 </style>
 </head>
 <body>
@@ -285,11 +334,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <div class="brand-text">Blue<small>Medical</small></div>
   </div>
   <nav class="nav">
-    <button data-ic="home">Inicio</button>
-    <button class="active" data-ic="users">Colaboradores</button>
-    <button data-ic="book">Capacitación</button>
-    <button data-ic="chart">Reportes</button>
-    <button data-ic="gear">Configuración</button>
+    <button data-ic="home" data-view="home">Inicio</button>
+    <button class="active" data-ic="users" data-view="collab">Colaboradores</button>
+    <button data-ic="book" data-view="training">Capacitación</button>
+    <button data-ic="chart" data-view="reports">Reportes</button>
+    <button data-ic="gear" data-view="settings">Configuración</button>
   </nav>
   <svg class="leaf" viewBox="0 0 200 300" aria-hidden="true"><path fill="#fff" d="M100 0C160 60 190 140 150 220S40 300 20 260 40 60 100 0Z"/><path fill="#fff" d="M170 120c30 40 30 110-20 150s-70 10-60-30 50-90 80-120Z"/></svg>
   <div class="side-foot">Personas<br>Salud<br>Bienestar</div>
@@ -314,6 +363,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <div class="scrim" id="scrim"></div>
 
 <main class="main">
+<section class="view" id="view-home" hidden></section>
+<section class="view" id="view-reports" hidden></section>
+<section class="view" id="view-training" hidden></section>
+<section class="view" id="view-settings" hidden></section>
+<div class="view" id="view-collab">
   <div class="top">
     <div>
       <h1>Reporte Final de Capacitación</h1>
@@ -341,10 +395,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="fields">
         <div class="field"><span>Clínica asignada</span>
           <div class="val"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <select id="f-clinic">
-              <option>Majadas</option><option>Américas</option><option>Portales</option><option>Vista Hermosa</option>
-              <option>Condado Concepción</option><option>El Frutal</option><option>Petápolis</option>
-            </select></div></div>
+            <select id="f-clinic"></select></div></div>
         <div class="field"><span>Fecha de ingreso</span>
           <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input type="date" id="f-date"></div></div>
         <div class="field"><span>Período CAPA</span>
@@ -446,6 +497,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       
     </section>
   </div>
+</div>
 </main>
 </div>
 
@@ -496,7 +548,7 @@ try {
   if (d && d.S) { S = Object.assign(clone(DEFAULTS), d.S); currentId = d.id || null; dirty = !!d.dirty; }
 } catch(e){}
 
-const PASS = 80;
+let PASS = 80;
 const BAR_COLORS = ["var(--blue)","var(--purple)","var(--teal)","var(--blue)","var(--purple)","var(--teal)","var(--green-bar)"];
 const STATUS = [{t:"Pendiente",c:"g"},{t:"En curso",c:"b"},{t:"Completado",c:""}];
 const $ = id => document.getElementById(id);
@@ -660,6 +712,7 @@ $("printBtn").addEventListener("click",()=>{
 });
 /* ---------- Carga de un reporte en el editor ---------- */
 function fillFields(){
+  fillClinicOptions();
   Object.entries(binds).forEach(([k,id])=>$(id).value = S[k] ?? "");
   $("f-final").value = S.final; $("f-att").value = S.att;
   $("f-summary").textContent = S.summary || "";
@@ -689,8 +742,10 @@ function localStore(){
   const read = () => { try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; } catch(e){ return []; } };
   const write = arr => { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); } catch(e){ throw {code:"local"}; } };
   reports = read(); renderPanel();
+  try { const c = JSON.parse(localStorage.getItem(CFG_KEY)); if (c) applyCfg(c); } catch(e){}
   return {
     shared:false,
+    async putCfg(d){ localStorage.setItem(CFG_KEY, JSON.stringify(d)); applyCfg(d); },
     async put(id,data){ const arr = read().filter(r=>r.id!==id); arr.push({id,...data}); write(arr); reports = arr; renderPanel(); },
     async remove(id){ const arr = read().filter(r=>r.id!==id); write(arr); reports = arr; renderPanel(); }
   };
@@ -705,8 +760,10 @@ async function initStore(){
     reports = snap.docs.map(d=>({id:d.id, ...d.data()}));
     renderPanel();
   }, err=>{ $("plist").innerHTML = `<div class="empty">No se pudo cargar el historial. Recarga la página para intentarlo de nuevo.</div>`; });
+  db.doc("config/main").onSnapshot(sn=>{ if (sn.exists) applyCfg(sn.data()); }, ()=>{});
   store = {
     shared:true,
+    putCfg:d=>db.doc("config/main").set(d),
     put:(id,data)=>col.doc(id).set(data),
     remove:id=>col.doc(id).delete()
   };
@@ -718,6 +775,7 @@ const keyOf = n => (n||"").trim().toLowerCase().normalize("NFD").replace(/[\u030
 const fmtDate = t => t ? new Date(t).toLocaleDateString("es-GT",{day:"numeric",month:"short",year:"numeric"}) : "";
 
 function renderPanel(){
+  if (typeof refreshViews==="function") refreshViews();
   const groups = new Map();
   reports.forEach(r=>{
     const k = keyOf(r.name) || "(sin nombre)";
@@ -814,8 +872,14 @@ function newReport(base){
   } else {
     S.name = ""; S.photo = ""; S.period = "";
   }
+  S.areas = CFG.areas.map(a=>({n:a.n, s:a.s, v:0}));
+  S.practical = CFG.practical.map(n=>({n, a:true}));
+  S.plan = CFG.plan.map(p=>({s:p.s, r:p.r, f:p.f, e:0}));
+  S.strengths = []; S.opportunities = []; S.notes = "";
+  S.final = 0; S.att = 100;
+  if (!base) S.trainer = CFG.trainer;
   S.createdAt = null;
-  currentId = null; dirty = true;
+  currentId = null; dirty = true; setView("collab");
   fillFields(); persistDraft(); updateSaveState(); renderPanel(); closePanel();
   $(base ? "f-period" : "f-name").focus();
 }
@@ -870,9 +934,350 @@ $("printBtn").addEventListener("click",()=>{
 function closePanel(){ $("panel").classList.remove("show"); $("scrim").classList.remove("show"); }
 $("panelBtn").addEventListener("click",()=>{ $("panel").classList.add("show"); $("scrim").classList.add("show"); $("q").focus(); });
 $("scrim").addEventListener("click",closePanel);
-document.querySelector('.nav [data-ic="users"]').addEventListener("click",()=>{
-  if (matchMedia("(max-width:900px)").matches) $("panelBtn").click(); else $("q").focus();
+
+/* =========================================================
+   Configuración compartida (plantilla + ajustes)
+   ========================================================= */
+const CFG_KEY = "bm-capa-config-v1";
+const THEME_KEY = "bm-capa-tema";
+let CFG = {
+  pass: 80,
+  trainer: "CAPA",
+  clinics: ["Majadas","Américas","Portales","Vista Hermosa","Condado Concepción","El Frutal","Petápolis"],
+  areas: DEFAULTS.areas.map(a=>({n:a.n, s:a.s})),
+  practical: DEFAULTS.practical.map(p=>p.n),
+  plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f}))
+};
+function applyCfg(c){
+  CFG = Object.assign({}, CFG, clone(c));
+  PASS = Number(CFG.pass) || 80;
+  fillClinicOptions();
+  renderAll();
+  refreshViews(true);
+}
+function fillClinicOptions(){
+  const sel = $("f-clinic"); if (!sel) return;
+  const list = [...CFG.clinics];
+  if (S.clinic && !list.includes(S.clinic)) list.push(S.clinic);
+  sel.innerHTML = list.map(c=>`<option ${c===S.clinic?"selected":""}>${esc(c)}</option>`).join("");
+  if (!S.clinic && list.length){ S.clinic = list[0]; }
+}
+
+/* Tema (preferencia de cada persona) */
+function applyTheme(t){
+  if (t==="light"||t==="dark") document.documentElement.setAttribute("data-theme",t);
+  else document.documentElement.removeAttribute("data-theme");
+}
+let THEME = "auto";
+try { THEME = localStorage.getItem(THEME_KEY) || "auto"; } catch(e){}
+applyTheme(THEME);
+
+/* =========================================================
+   Navegación entre vistas
+   ========================================================= */
+let VIEW = "collab";
+const VIEW_HASH = {home:"inicio", collab:"colaboradores", training:"capacitacion", reports:"reportes", settings:"configuracion"};
+function setView(v, fromHash){
+  if (!VIEW_HASH[v]) v = "collab";
+  if (v!==VIEW && (VIEW==="training"||VIEW==="settings") && cfgDirty && !confirm("Tienes cambios sin guardar en esta sección. ¿Salir sin guardarlos?")) return;
+  cfgDirty = false;
+  VIEW = v;
+  document.querySelectorAll(".view").forEach(el=>el.hidden = el.id !== "view-"+v);
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active", b.dataset.view===v));
+  document.querySelector(".app").classList.toggle("nopanel", v!=="collab");
+  if (v!=="collab") closePanel();
+  if (v==="training"||v==="settings") draft = clone(CFG);
+  refreshViews(true);
+  if (!fromHash) { try { history.replaceState(null,"","#"+VIEW_HASH[v]); } catch(e){} }
+  window.scrollTo({top:0});
+}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{
+  if (b.dataset.view==="collab" && VIEW==="collab" && matchMedia("(max-width:900px)").matches) { $("panelBtn").click(); return; }
+  setView(b.dataset.view);
+}));
+window.addEventListener("hashchange",()=>{
+  const v = Object.keys(VIEW_HASH).find(k=>"#"+VIEW_HASH[k]===location.hash);
+  if (v && v!==VIEW) setView(v,true);
 });
+
+function refreshViews(force){
+  if (VIEW==="home") renderHome();
+  else if (VIEW==="reports") renderReports();
+  else if (force && VIEW==="training") renderTraining();
+  else if (force && VIEW==="settings") renderSettings();
+}
+
+/* Datos derivados */
+function latestByPerson(){
+  const m = new Map();
+  reports.forEach(r=>{
+    const k = keyOf(r.name); const cur = m.get(k);
+    if (!cur || (r.updatedAt||0) > (cur.updatedAt||0)) m.set(k,r);
+  });
+  return [...m.values()];
+}
+function goReport(id){ setView("collab"); openReport(id); }
+
+/* =========================================================
+   Inicio
+   ========================================================= */
+function renderHome(){
+  const el = $("view-home");
+  const latest = latestByPerson();
+  const head = `<div class="vhead"><div><h1>Inicio</h1><div class="sub">Resumen general de los procesos CAPA</div></div>
+    <button class="btn" data-act="new"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo reporte</button></div>`;
+  if (!reports.length){
+    el.innerHTML = head + `<div class="card pad empty" style="padding:48px 20px">Aún no hay reportes guardados.<br>Crea el primer reporte de capacitación para ver aquí el resumen del equipo.<br><br>
+      <button class="btn" data-act="new">Crear el primer reporte</button></div>`;
+    return;
+  }
+  const ok = latest.filter(r=>compute(r).ok);
+  const pct = Math.round(ok.length*100/latest.length);
+  const avgFinal = Math.round(latest.reduce((t,r)=>t+(Number(r.final)||0),0)/latest.length);
+  const avgAtt = Math.round(latest.reduce((t,r)=>t+(Number(r.att)||0),0)/latest.length);
+
+  // promedio por área
+  const areaMap = new Map();
+  latest.forEach(r=>(r.areas||[]).forEach(a=>{
+    const k = a.n; const e = areaMap.get(k) || {sum:0,n:0}; e.sum += Number(a.v)||0; e.n++; areaMap.set(k,e);
+  }));
+  const areas = [...areaMap.entries()].map(([n,e])=>({n, v:Math.round(e.sum/e.n)})).sort((a,b)=>a.v-b.v);
+
+  // por clínica
+  const clin = new Map();
+  latest.forEach(r=>{ const e = clin.get(r.clinic||"Sin clínica") || {n:0,ok:0}; e.n++; if(compute(r).ok) e.ok++; clin.set(r.clinic||"Sin clínica",e); });
+  const clinics = [...clin.entries()].sort((a,b)=>b[1].n-a[1].n);
+
+  const need = latest.filter(r=>!compute(r).ok);
+  const recent = [...reports].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);
+
+  el.innerHTML = head + `
+  <div class="grid stats">
+    <div class="card stat"><div class="l">Colaboradores</div><div class="n">${latest.length}</div><div class="s">con reporte CAPA</div></div>
+    <div class="card stat"><div class="l">Aprobados</div><div class="n" style="color:var(--green)">${pct}%</div><div class="s">${ok.length} de ${latest.length} en su último reporte</div></div>
+    <div class="card stat"><div class="l">Evaluación final promedio</div><div class="n">${avgFinal}%</div><div class="bar" style="margin-top:8px"><i style="width:${avgFinal}%;background:var(--blue)"></i></div></div>
+    <div class="card stat"><div class="l">Asistencia promedio</div><div class="n">${avgAtt}%</div><div class="bar" style="margin-top:8px"><i style="width:${avgAtt}%;background:var(--teal)"></i></div></div>
+  </div>
+  <div class="grid home2">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>Promedio por área de capacitación</h3>
+      <div class="hint2">Ordenado de menor a mayor para ubicar dónde reforzar la capacitación.</div>
+      ${areas.map(a=>`<div class="hbar"><span>${esc(a.n)}</span><span class="track"><i style="width:${a.v}%;background:${a.v<PASS?"var(--coral)":"var(--blue)"}"></i></span><b>${a.v}%</b></div>`).join("")}
+    </section>
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>Resultados por clínica</h3>
+      <div class="tbl-wrap"><table><thead><tr><th>Clínica</th><th class="center">Colaboradores</th><th class="center">Aprobados</th></tr></thead>
+      <tbody>${clinics.map(([c,e])=>`<tr><td>${esc(c)}</td><td class="center">${e.n}</td><td class="center">${e.ok} <span class="small">(${Math.round(e.ok*100/e.n)}%)</span></td></tr>`).join("")}</tbody></table></div>
+    </section>
+  </div>
+  <div class="grid home2">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Últimos reportes</h3>
+      <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Clínica</th><th>Resultado</th><th>Guardado</th></tr></thead>
+      <tbody>${recent.map(r=>{ const c=compute(r); return `<tr class="rowlink" data-open="${esc(r.id)}"><td>${esc(r.name)}</td><td>${esc(r.clinic||"")}</td><td><span class="pill inline ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"}</span></td><td class="small">${fmtDate(r.updatedAt)}</td></tr>`; }).join("")}</tbody></table></div>
+    </section>
+    <section class="card pad soft-orange">
+      <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Requieren refuerzo</h3>
+      ${need.length ? `<div class="items">${need.map(r=>`<div class="item rowlink" data-open="${esc(r.id)}"><span class="ico" style="background:var(--orange)">!</span><span class="txt"><b>${esc(r.name)}</b><br><span class="small">${esc(r.clinic||"")} · promedio ${compute(r).avg}% · final ${r.final}%</span></span></div>`).join("")}</div>`
+        : `<div class="small">Todos los colaboradores aprobaron su último reporte.</div>`}
+    </section>
+  </div>`;
+}
+$("view-home").addEventListener("click",e=>{
+  const o = e.target.closest("[data-open]"); if (o){ goReport(o.dataset.open); return; }
+  if (e.target.closest('[data-act="new"]')) newReport(null);
+});
+
+/* =========================================================
+   Reportes
+   ========================================================= */
+let rq = "", rClinic = "", rStatus = "";
+function renderReports(){
+  const el = $("view-reports");
+  if (!el.dataset.ready){
+    el.innerHTML = `<div class="vhead"><div><h1>Reportes</h1><div class="sub">Todos los reportes de capacitación guardados</div></div>
+      <button class="btn secondary" id="csvBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>Exportar a Excel (CSV)</button></div>
+      <div class="toolbar">
+        <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" type="search" placeholder="Buscar colaborador, clínica o período"></label>
+        <select id="rClinic" aria-label="Clínica"></select>
+        <select id="rStatus" aria-label="Resultado"><option value="">Todos los resultados</option><option value="ok">Aprobados</option><option value="no">Requieren refuerzo</option></select>
+      </div>
+      <section class="card pad"><div class="tbl-wrap" id="rTable"></div><div class="msg" id="rMsg" style="margin-top:8px"></div></section>`;
+    el.dataset.ready = "1";
+    $("rq").addEventListener("input",e=>{ rq = e.target.value; renderReports(); });
+    $("rClinic").addEventListener("change",e=>{ rClinic = e.target.value; renderReports(); });
+    $("rStatus").addEventListener("change",e=>{ rStatus = e.target.value; renderReports(); });
+    $("rTable").addEventListener("click",e=>{ const o = e.target.closest("[data-open]"); if (o) goReport(o.dataset.open); });
+    $("csvBtn").addEventListener("click",exportCsv);
+  }
+  const clinics = [...new Set(reports.map(r=>r.clinic).filter(Boolean))].sort();
+  $("rClinic").innerHTML = `<option value="">Todas las clínicas</option>` + clinics.map(c=>`<option ${c===rClinic?"selected":""}>${esc(c)}</option>`).join("");
+  const rows = filteredReports();
+  $("rTable").innerHTML = !reports.length
+    ? `<div class="empty">Aún no hay reportes guardados.</div>`
+    : !rows.length ? `<div class="empty">Ningún reporte coincide con los filtros.</div>`
+    : `<table><thead><tr><th>Colaborador</th><th>Clínica</th><th>Período</th><th class="center">Final</th><th class="center">Promedio</th><th class="center">Asistencia</th><th>Resultado</th><th>Guardado</th></tr></thead>
+      <tbody>${rows.map(r=>{ const c = compute(r); return `<tr class="rowlink" data-open="${esc(r.id)}">
+        <td><b style="font-weight:600">${esc(r.name)}</b></td><td>${esc(r.clinic||"")}</td><td>${esc(r.period||"")}</td>
+        <td class="center">${r.final}%</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
+        <td><span class="pill inline ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"}</span></td><td class="small">${fmtDate(r.updatedAt)}</td></tr>`; }).join("")}</tbody></table>`;
+  $("rMsg").textContent = reports.length ? `${rows.length} de ${reports.length} reportes` : "";
+}
+function filteredReports(){
+  const q = keyOf(rq);
+  return [...reports].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).filter(r=>{
+    const ok = compute(r).ok;
+    if (q && !(keyOf(r.name).includes(q)||keyOf(r.clinic).includes(q)||keyOf(r.period).includes(q))) return false;
+    if (rClinic && r.clinic!==rClinic) return false;
+    if (rStatus==="ok" && !ok) return false;
+    if (rStatus==="no" && ok) return false;
+    return true;
+  });
+}
+async function exportCsv(){
+  const rows = filteredReports();
+  if (!rows.length){ $("rMsg").textContent = "No hay reportes para exportar con estos filtros."; return; }
+  const areaNames = [...new Set(rows.flatMap(r=>(r.areas||[]).map(a=>a.n)))];
+  const cell = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const head = ["Colaborador","Puesto","Clínica","Fecha de ingreso","Período CAPA","Capacitador","Evaluación final","Promedio","Asistencia","Resultado",...areaNames,"Observaciones","Guardado"];
+  const lines = rows.map(r=>{ const c = compute(r); return [r.name,r.role,r.clinic,r.date,r.period,r.trainer,r.final,c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
+    ...areaNames.map(n=>{ const a=(r.areas||[]).find(x=>x.n===n); return a?a.v:""; }), r.notes, fmtDate(r.updatedAt)].map(cell).join(","); });
+  const data = "\ufeff" + [head.map(cell).join(","), ...lines].join("\r\n");
+  const filename = `reportes-capa-${new Date().toISOString().slice(0,10)}.csv`;
+  let dl = null;
+  try { if (window.claude && claude.use) dl = await claude.use("downloads"); } catch(e){}
+  if (dl){
+    try { await dl.save({filename, data}); $("rMsg").textContent = "Archivo listo para guardar."; }
+    catch(e){ $("rMsg").textContent = "No se descargó el archivo."; }
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));
+  a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+/* =========================================================
+   Capacitación (plantilla para reportes nuevos)
+   ========================================================= */
+let draft = clone(CFG), cfgDirty = false;
+function renderTraining(){
+  const el = $("view-training");
+  el.innerHTML = `<div class="vhead"><div><h1>Capacitación</h1><div class="sub">Plantilla que se usa al crear un reporte nuevo</div></div>
+    <div class="actions"><span class="msg" id="tMsg"></span><button class="btn" data-save>Guardar plantilla</button></div></div>
+  <div class="grid form-grid">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>Áreas evaluadas</h3>
+      <div class="hint2">La etiqueta corta es la que aparece debajo de cada barra de la gráfica.</div>
+      ${draft.areas.map((a,i)=>`<div class="frow"><input class="tin" data-k="areas" data-i="${i}" data-f="n" value="${esc(a.n)}" aria-label="Área"><input class="tin short" data-k="areas" data-i="${i}" data-f="s" value="${esc(a.s)}" placeholder="Etiqueta corta" aria-label="Etiqueta corta"><button class="xbtn" data-del="areas" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      <button class="add" data-addk="areas">+ Agregar área</button>
+    </section>
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Aspectos del desempeño práctico</h3>
+      <div class="hint2">Cada aspecto se marca como autónomo o con acompañamiento en el reporte.</div>
+      ${draft.practical.map((n,i)=>`<div class="frow one"><input class="tin" data-k="practical" data-i="${i}" value="${esc(n)}" aria-label="Aspecto"><button class="xbtn" data-del="practical" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      <button class="add" data-addk="practical">+ Agregar aspecto</button>
+    </section>
+  </div>
+  <section class="card pad">
+    <h3><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan de seguimiento en clínica</h3>
+    <div class="frow plan small" style="margin-bottom:4px"><span>Seguimiento</span><span>Responsable</span><span>Fecha</span><span></span></div>
+    ${draft.plan.map((p,i)=>`<div class="frow plan"><input class="tin" data-k="plan" data-i="${i}" data-f="s" value="${esc(p.s)}" aria-label="Seguimiento"><input class="tin" data-k="plan" data-i="${i}" data-f="r" value="${esc(p.r)}" aria-label="Responsable"><input class="tin" data-k="plan" data-i="${i}" data-f="f" value="${esc(p.f)}" aria-label="Fecha"><button class="xbtn" data-del="plan" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+    <button class="add" data-addk="plan">+ Agregar seguimiento</button>
+  </section>`;
+}
+
+/* =========================================================
+   Configuración
+   ========================================================= */
+function renderSettings(){
+  const el = $("view-settings");
+  el.innerHTML = `<div class="vhead"><div><h1>Configuración</h1><div class="sub">Ajustes generales del dashboard</div></div>
+    <div class="actions"><span class="msg" id="tMsg"></span><button class="btn" data-save>Guardar configuración</button></div></div>
+  <div class="grid form-grid">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24" style="stroke-width:2.5"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Criterio de aprobación</h3>
+      <div class="fblock"><label class="flabel" for="cPass">Nota mínima para aprobar (%)</label>
+        <input class="tin" id="cPass" type="number" min="0" max="100" value="${draft.pass}" style="max-width:120px" data-single="pass">
+        <div class="hint2" style="margin:6px 0 0">Se aprueba cuando el promedio de áreas y la evaluación final alcanzan este valor.</div></div>
+      <div class="fblock"><label class="flabel" for="cTrainer">Capacitador por defecto</label>
+        <input class="tin" id="cTrainer" value="${esc(draft.trainer)}" data-single="trainer"></div>
+    </section>
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>Clínicas</h3>
+      ${draft.clinics.map((c,i)=>`<div class="frow one"><input class="tin" data-k="clinics" data-i="${i}" value="${esc(c)}" aria-label="Clínica"><button class="xbtn" data-del="clinics" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      <button class="add" data-addk="clinics">+ Agregar clínica</button>
+    </section>
+  </div>
+  <section class="card pad">
+    <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Apariencia</h3>
+    <div class="hint2">Solo cambia cómo ves el dashboard en este dispositivo.</div>
+    <div class="seg" id="themeSeg">
+      <button data-theme-set="auto" class="${THEME==="auto"?"on":""}">Automático</button>
+      <button data-theme-set="light" class="${THEME==="light"?"on":""}">Claro</button>
+      <button data-theme-set="dark" class="${THEME==="dark"?"on":""}">Oscuro</button>
+    </div>
+  </section>`;
+}
+
+/* Edición compartida de Capacitación y Configuración */
+["view-training","view-settings"].forEach(id=>{
+  const el = $(id);
+  el.addEventListener("input",e=>{
+    const t = e.target;
+    if (t.dataset.single){ draft[t.dataset.single] = t.dataset.single==="pass" ? clampPass(t.value) : t.value; }
+    else if (t.dataset.k){
+      const arr = draft[t.dataset.k], i = +t.dataset.i;
+      if (t.dataset.f) arr[i][t.dataset.f] = t.value; else arr[i] = t.value;
+    } else return;
+    cfgDirty = true; $("tMsg").textContent = "Cambios sin guardar";
+  });
+  el.addEventListener("click", async e=>{
+    const th = e.target.closest("[data-theme-set]");
+    if (th){ THEME = th.dataset.themeSet; try{ localStorage.setItem(THEME_KEY,THEME);}catch(_){} applyTheme(THEME);
+      el.querySelectorAll("[data-theme-set]").forEach(b=>b.classList.toggle("on",b===th)); return; }
+    const del = e.target.closest("[data-del]");
+    if (del){ draft[del.dataset.del].splice(+del.dataset.i,1); cfgDirty = true; rerenderCfg(); return; }
+    const add = e.target.closest("[data-addk]");
+    if (add){
+      const k = add.dataset.addk;
+      draft[k].push(k==="areas"?{n:"Nueva área",s:"Nueva"} : k==="plan"?{s:"Nuevo seguimiento",r:"CAPA",f:""} : k==="clinics"?"Nueva clínica":"Nuevo aspecto");
+      cfgDirty = true; rerenderCfg();
+      const ins = el.querySelectorAll(`[data-k="${k}"]`); const last = [...ins].filter(x=>!x.dataset.f||x.dataset.f!=="s"||k!=="areas").pop();
+      if (last){ last.focus(); last.select(); }
+      return;
+    }
+    if (e.target.closest("[data-save]")){
+      const clean = clone(draft);
+      clean.areas = clean.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()}));
+      clean.practical = clean.practical.map(x=>x.trim()).filter(Boolean);
+      clean.plan = clean.plan.filter(p=>p.s.trim());
+      clean.clinics = [...new Set(clean.clinics.map(x=>x.trim()).filter(Boolean))];
+      clean.pass = clampPass(clean.pass);
+      if (!clean.areas.length){ $("tMsg").textContent = "Agrega al menos un área evaluada."; return; }
+      if (!clean.clinics.length){ $("tMsg").textContent = "Agrega al menos una clínica."; return; }
+      const btn = e.target.closest("[data-save]"); btn.disabled = true;
+      try {
+        await store.putCfg(clean);
+        applyCfg(clean); draft = clone(CFG); cfgDirty = false; rerenderCfg();
+        $("tMsg").textContent = "Guardado";
+      } catch(err){
+        $("tMsg").textContent = err && err.code==="invalid_argument" ? "No tienes permiso para cambiar la configuración." : "No se pudo guardar. Inténtalo de nuevo.";
+        btn.disabled = false;
+      }
+    }
+  });
+});
+function clampPass(v){ return Math.min(100, Math.max(0, Math.round(Number(v)||0))); }
+function rerenderCfg(){ if (VIEW==="training") renderTraining(); else if (VIEW==="settings") renderSettings(); if (cfgDirty) $("tMsg").textContent = "Cambios sin guardar"; }
+
+/* Vista inicial */
+fillClinicOptions();
+$("f-clinic").value = S.clinic;
+{
+  const v = Object.keys(VIEW_HASH).find(k=>"#"+VIEW_HASH[k]===location.hash);
+  setView(v || "collab", true);
+}
 window.addEventListener("beforeunload",()=>persistDraft());
 
 if (S.name) openKey = keyOf(S.name);
