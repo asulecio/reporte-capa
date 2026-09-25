@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reporte Final de Capacitación | Blue Medical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b2e5b; --navy2:#08254a;
+  --blue:#4d8fe8; --purple:#8b6cf0; --teal:#5fc8c4; --coral:#ef8a6b; --green-bar:#7fd0a8;
+  --green:#3f9e63; --orange:#e9a23b;
+  --bg:#f2f6fb; --card:#ffffff; --text:#12294d; --muted:#6b7a90; --line:#e2e9f2; --head:#eef3f9;
+  --soft-green:#f1faf4; --soft-orange:#fff7f0; --banner:#e8f6ee; --editable:#fffbe6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1726; --card:#16223a; --text:#e6edf8; --muted:#9aa9c0; --line:#26344f; --head:#1c2a46;
+    --soft-green:#132c24; --soft-orange:#2e2419; --banner:#16342a; --editable:#2a2a1c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1726; --card:#16223a; --text:#e6edf8; --muted:#9aa9c0; --line:#26344f; --head:#1c2a46;
+  --soft-green:#132c24; --soft-orange:#2e2419; --banner:#16342a; --editable:#2a2a1c;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+button{font-family:inherit}
+input,select,textarea{font-family:inherit;color:inherit}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+
+/* Sidebar */
+.side{background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:34px;padding-left:6px}
+.brand-text{font-size:24px;font-weight:700;line-height:.95}
+.brand-text small{display:block;font-size:17px;font-weight:400;opacity:.9}
+.nav{display:grid;gap:6px}
+.nav button{display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#d6e3f5;padding:11px 12px;border-radius:9px;text-align:left;font-size:14px;cursor:pointer}
+.nav button:hover{background:rgba(255,255,255,.08)}
+.nav button.active{background:#dbe8fb;color:#123a6b;font-weight:600}
+.leaf{position:absolute;left:-60px;bottom:40px;width:300px;opacity:.07;pointer-events:none}
+.side-foot{margin-top:auto;font-size:13px;line-height:1.4;color:#9fb6d6;padding-left:6px;position:relative}
+
+/* Main */
+.main{padding:24px 26px 40px;max-width:1280px;width:100%}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.top h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--muted);margin-top:4px;font-size:13px}
+.actions{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:9px;padding:11px 16px;background:#1f63bf;color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+.btn:hover{background:#1a55a6}
+.btn.secondary{background:var(--head);color:#1f5aa3}
+.btn:focus-visible,.nav button:focus-visible,.chip:focus-visible,.status:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 10px rgba(20,50,95,.05)}
+.grid{display:grid;gap:14px;margin-bottom:14px}
+.card h3{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:16px;font-weight:700}
+.card h3 svg{color:#2a6fd0}
+
+/* Perfil */
+.profile{display:grid;grid-template-columns:auto 1fr;gap:26px;padding:18px 22px;align-items:center}
+.avatar{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#dbe8fb,#c3d7f5);display:grid;place-items:center;font-size:32px;font-weight:700;color:#1f5aa3;cursor:pointer;overflow:hidden;position:relative;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar .hint{position:absolute;inset:auto 0 0 0;background:rgba(11,46,91,.7);color:#fff;font-size:10px;font-weight:500;padding:4px 0;text-align:center;opacity:0;transition:opacity .15s}
+.avatar:hover .hint{opacity:1}
+.pname{font-size:22px;font-weight:700;border:0;background:transparent;outline:none;width:100%;padding:0}
+.prole{display:flex;align-items:center;gap:8px;color:var(--muted);margin:4px 0 16px}
+.prole input{border:0;background:transparent;outline:none;font-size:14px;width:100%;color:var(--text)}
+.fields{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.field{padding:0 18px;border-left:1px solid var(--line)}
+.field:first-child{border-left:0;padding-left:0}
+.field span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.field .val{display:flex;align-items:center;gap:8px}
+.field .val svg{width:16px;height:16px}
+.field input,.field select{width:100%;border:0;background:transparent;outline:none;font-weight:600;font-size:14px;padding:0}
+.field select option{color:#12294d}
+
+/* KPIs */
+.kpis{grid-template-columns:repeat(4,1fr)}
+.kpi{display:flex;gap:14px;align-items:flex-start;padding:16px 18px}
+.kicon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.kicon svg{width:22px;height:22px}
+.kbody{flex:1;min-width:0}
+.klabel{font-size:13px;font-weight:600}
+.kvalue{font-size:30px;font-weight:800;margin:4px 0 8px;display:flex;align-items:baseline;letter-spacing:-.02em}
+.kvalue input{width:3.1ch;font-size:30px;font-weight:800;border:0;background:transparent;outline:none;padding:0;letter-spacing:-.02em}
+.kvalue input:focus{background:var(--editable);border-radius:4px}
+.bar{height:7px;background:var(--line);border-radius:10px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:10px;transition:width .3s}
+.kstatus{font-size:24px;font-weight:800;margin:6px 0 4px}
+.small{font-size:12px;color:var(--muted)}
+
+/* Resultados por área */
+.results{padding:18px 20px}
+.results-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:28px;align-items:start}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--head);text-align:left;font-weight:600;font-size:12px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line)}
+td.center,th.center{text-align:center}
+.cell-in{width:100%;border:0;background:transparent;outline:none;font-size:13px;padding:2px 4px;border-radius:4px}
+.cell-in:focus{background:var(--editable)}
+.num-in{width:52px;text-align:right}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--green);vertical-align:middle}
+.dot.y{background:var(--orange)}
+.dot.g{background:#c3ccd8}
+.dot.b{background:var(--blue)}
+
+.chart-title{font-size:13px;font-weight:600;margin-bottom:8px}
+.chart{position:relative;height:190px;margin-left:30px;margin-top:18px}
+.gridline{position:absolute;left:0;right:0;border-top:1px solid var(--line);font-size:10px;color:var(--muted)}
+.gridline b{position:absolute;left:-30px;top:-7px;width:24px;text-align:right;font-weight:400}
+.bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:12px;padding:0 6px}
+.col{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+.stick{width:100%;max-width:46px;border-radius:4px 4px 0 0;position:relative;transition:height .3s}
+.stick b{position:absolute;top:-18px;left:-10px;right:-10px;text-align:center;font-size:11px;font-weight:700}
+.xlabels{display:flex;gap:12px;padding:6px 6px 0;margin-left:30px}
+.xlabels div{flex:1;text-align:center;font-size:10.5px;color:var(--muted);line-height:1.2}
+
+/* Fila de 3 */
+.row3{grid-template-columns:1.35fr 1fr 1fr}
+.pad{padding:18px 20px}
+.chip{border:0;background:transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);padding:2px 4px;border-radius:5px;text-align:left}
+.chip:hover{background:var(--head)}
+.soft-green{background:var(--soft-green)}
+.soft-orange{background:var(--soft-orange)}
+.soft-green h3 svg{color:var(--green)}
+.soft-orange h3 svg{color:#e0674a}
+.items{display:grid;gap:12px}
+.item{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.35}
+.item .ico{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;font-size:12px;font-weight:800;margin-top:-1px}
+.item .ico svg{width:12px;height:12px;stroke-width:3}
+.item .txt{flex:1;outline:none;border-radius:4px;padding:0 2px}
+.item .txt:focus{background:var(--editable)}
+.del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;opacity:0;padding:0 2px}
+.item:hover .del,.del:focus{opacity:1}
+.add{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer;margin-top:12px}
+.add:hover{color:var(--text);border-color:var(--muted)}
+
+/* Fila inferior */
+.row2{grid-template-columns:1fr 1fr}
+.status{border:0;background:transparent;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text);padding:2px 4px;border-radius:5px}
+.status:hover{background:var(--head)}
+.banner{display:flex;align-items:center;justify-content:center;gap:14px;background:var(--banner);border-radius:10px;padding:12px}
+.banner .bicon{width:40px;height:40px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff}
+.banner .bicon svg{width:22px;height:22px;stroke-width:3}
+.banner strong{display:block;font-size:24px;font-weight:800;color:var(--green);line-height:1}
+.banner span{font-size:11px;font-weight:600;color:var(--green)}
+.banner.warn{background:var(--soft-orange)}
+.banner.warn .bicon{background:var(--orange)}
+.banner.warn strong,.banner.warn span{color:#c9811d}
+.summary{margin:12px 0 10px;font-size:12.5px;line-height:1.5;outline:none;border-radius:4px}
+.summary:focus{background:var(--editable)}
+.notes-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.notes{width:100%;min-height:64px;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;resize:vertical;background:transparent;outline:none}
+.notes:focus{border-color:var(--blue)}
+.saved{font-size:12px;color:var(--muted);margin-top:8px;min-height:16px}
+
+@media (max-width:1100px){
+  .row3{grid-template-columns:1fr 1fr}
+  .row3 > :first-child{grid-column:1 / -1}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .kpis,.fields{grid-template-columns:repeat(2,1fr)}
+  .field:nth-child(3){border-left:0;padding-left:0}
+  .fields{row-gap:14px}
+  .results-grid,.row2,.row3{grid-template-columns:1fr}
+  .profile{grid-template-columns:1fr;justify-items:start}
+}
+@media (max-width:520px){
+  .main{padding:16px 14px 32px}
+  .kpis{grid-template-columns:1fr}
+  .top h1{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  :root{--bg:#fff;--card:#fff;--text:#12294d;--muted:#6b7a90;--line:#e2e9f2;--head:#eef3f9;--soft-green:#f1faf4;--soft-orange:#fff7f0;--banner:#e8f6ee;--editable:transparent;padding:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;font-size:11px;zoom:.78}
+  .app{grid-template-columns:190px 1fr}
+  .side{height:auto;min-height:100%;position:relative}
+  .actions,.add,.del,.saved,.avatar .hint{display:none!important}
+  .main{padding:14px 16px}
+  .card{box-shadow:none;break-inside:avoid}
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .fields{grid-template-columns:repeat(4,1fr)}
+  .results-grid{grid-template-columns:1fr 1.2fr}
+  .row3{grid-template-columns:1.35fr 1fr 1fr}
+  .row3 > :first-child{grid-column:auto}
+  .row2{grid-template-columns:1fr 1fr}
+  .profile{grid-template-columns:auto 1fr}
+  .notes{border-color:transparent;resize:none;padding:0}
+  select{appearance:none;-webkit-appearance:none}
+  input[type=date]::-webkit-calendar-picker-indicator{display:none}
+}
+
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.num-in{width:38px}
+/* Panel de colaboradores */
+.app{grid-template-columns:220px 300px 1fr}
+.panel{background:var(--card);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:20}
+.panel-head{padding:22px 16px 10px}
+.panel-head h2{margin:0 0 12px;font-size:17px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.panel-head h2 small{font-size:12px;font-weight:500;color:var(--muted)}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--bg);color:var(--muted)}
+.search:focus-within{border-color:var(--blue)}
+.search input{border:0;background:transparent;outline:none;width:100%;font-size:13.5px;color:var(--text)}
+.filters{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.fchip{border:1px solid var(--line);background:transparent;border-radius:20px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.fchip.on{background:#1f63bf;border-color:#1f63bf;color:#fff}
+.clinic-filter{margin-top:8px;width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:12.5px;background:var(--bg)}
+.plist{flex:1;overflow-y:auto;padding:6px 8px 12px}
+.prow{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:10px;padding:9px 8px;cursor:pointer;text-align:left;color:var(--text)}
+.prow:hover{background:var(--head)}
+.prow.open{background:var(--head)}
+.pav{width:36px;height:36px;border-radius:50%;background:#dbe8fb;color:#1f5aa3;display:grid;place-items:center;font-weight:700;font-size:13px;overflow:hidden;flex:none}
+.pav img{width:100%;height:100%;object-fit:cover}
+.pinfo{flex:1;min-width:0}
+.pinfo b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pinfo span{font-size:12px;color:var(--muted)}
+.pcount{font-size:11px;color:var(--muted);background:var(--bg);border-radius:10px;padding:2px 7px}
+.hist{margin:2px 0 8px 54px;border-left:2px solid var(--line);padding-left:10px;display:grid;gap:4px}
+.hitem{border:0;background:transparent;border-radius:8px;padding:7px 8px;text-align:left;cursor:pointer;color:var(--text);display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+.hitem:hover{background:var(--head)}
+.hitem.cur{background:#e3eefc;box-shadow:inset 0 0 0 1px #b9d2f5}
+.hitem b{font-weight:600;font-size:12.5px}
+.hitem small{color:var(--muted);grid-column:1}
+.pill{font-size:10.5px;font-weight:700;border-radius:10px;padding:2px 7px;align-self:center;grid-row:1 / span 2;grid-column:2}
+.pill.ok{background:var(--banner);color:var(--green)}
+.pill.no{background:var(--soft-orange);color:#c9811d}
+.hnew{border:0;background:transparent;color:#1f63bf;font-size:12px;text-align:left;padding:5px 8px;cursor:pointer;border-radius:6px}
+.hnew:hover{background:var(--head)}
+.empty{padding:24px 14px;text-align:center;color:var(--muted);font-size:13px;line-height:1.5}
+.panel-foot{padding:12px 16px;border-top:1px solid var(--line)}
+.panel-foot .btn{width:100%;justify-content:center}
+.savestate{font-size:12px;color:var(--muted);align-self:center}
+.savestate.dirty{color:#c9811d}
+.btn.danger{background:transparent;color:#c2503f;border:1px solid var(--line)}
+.btn.danger:hover{background:var(--soft-orange)}
+.btn:disabled{opacity:.6;cursor:default}
+.panel-toggle{display:none}
+.scrim{display:none}
+@media (max-width:1500px){
+  .app{grid-template-columns:68px 300px 1fr}
+  .side{padding:24px 10px}
+  .brand-text,.side-foot,.nav button span{display:none}
+  .brand{justify-content:center;padding:0}
+  .nav button{justify-content:center;padding:11px}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .panel{position:fixed;left:0;top:0;bottom:0;width:min(320px,88vw);transform:translateX(-100%);transition:transform .2s;padding-top:env(safe-area-inset-top,0px);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  .panel.show{transform:none}
+  .scrim.show{display:block;position:fixed;inset:0;background:rgba(10,25,50,.35);z-index:15}
+  .panel-toggle{display:inline-flex}
+}
+@media print{.panel,.scrim,.savestate{display:none!important}.app{grid-template-columns:190px 1fr!important}.brand-text,.side-foot,.nav button span{display:block!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="side">
+  <div class="brand">
+    <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+      <g fill="#fff">
+        <ellipse cx="20" cy="10" rx="6" ry="9" opacity=".95"/>
+        <ellipse cx="20" cy="10" rx="6" ry="9" transform="rotate(120 20 20)" opacity=".75"/>
+        <ellipse cx="20" cy="10" rx="6" ry="9" transform="rotate(240 20 20)" opacity=".55"/>
+      </g>
+    </svg>
+    <div class="brand-text">Blue<small>Medical</small></div>
+  </div>
+  <nav class="nav">
+    <button data-ic="home">Inicio</button>
+    <button class="active" data-ic="users">Colaboradores</button>
+    <button data-ic="book">Capacitación</button>
+    <button data-ic="chart">Reportes</button>
+    <button data-ic="gear">Configuración</button>
+  </nav>
+  <svg class="leaf" viewBox="0 0 200 300" aria-hidden="true"><path fill="#fff" d="M100 0C160 60 190 140 150 220S40 300 20 260 40 60 100 0Z"/><path fill="#fff" d="M170 120c30 40 30 110-20 150s-70 10-60-30 50-90 80-120Z"/></svg>
+  <div class="side-foot">Personas<br>Salud<br>Bienestar</div>
+</aside>
+
+
+<aside class="panel" id="panel" aria-label="Colaboradores">
+  <div class="panel-head">
+    <h2>Colaboradores <small id="pTotal"></small></h2>
+    <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Buscar por nombre o clínica" autocomplete="off"></label>
+    <div class="filters" id="filters">
+      <button class="fchip on" data-f="all">Todos</button>
+      <button class="fchip" data-f="ok">Aprobados</button>
+      <button class="fchip" data-f="no">Requieren refuerzo</button>
+    </div>
+    <select class="clinic-filter" id="clinicFilter" aria-label="Filtrar por clínica"><option value="">Todas las clínicas</option></select>
+  </div>
+  <div class="plist" id="plist"></div>
+  <div class="panel-foot"><button class="btn" id="newBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo reporte</button></div>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <h1>Reporte Final de Capacitación</h1>
+      <div class="sub">Resultado individual del proceso CAPA</div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary panel-toggle" id="panelBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Colaboradores</button>
+      <span class="savestate" id="saveState"></span>
+      <button class="btn danger" id="delBtn" hidden>Eliminar</button>
+      <button class="btn secondary" id="saveBtn"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5Z"/><path d="M8 3v5h8M8 21v-7h8v7"/></svg>Guardar reporte</button>
+      <button class="btn" id="printBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>Descargar reporte</button>
+    </div>
+  </div>
+
+  <!-- Perfil -->
+  <section class="card profile grid">
+    <label class="avatar" id="avatar" title="Subir foto">
+      <span id="avatarInner">ML</span>
+      <span class="hint">Cambiar foto</span>
+      <input type="file" id="photoIn" accept="image/*" hidden>
+    </label>
+    <div>
+      <input class="pname" id="f-name" aria-label="Nombre del colaborador">
+      <div class="prole"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-role" aria-label="Puesto"></div>
+      <div class="fields">
+        <div class="field"><span>Clínica asignada</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <select id="f-clinic">
+              <option>Majadas</option><option>Américas</option><option>Portales</option><option>Vista Hermosa</option>
+              <option>Condado Concepción</option><option>El Frutal</option><option>Petápolis</option>
+            </select></div></div>
+        <div class="field"><span>Fecha de ingreso</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input type="date" id="f-date"></div></div>
+        <div class="field"><span>Período CAPA</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input id="f-period"></div></div>
+        <div class="field"><span>Capacitador</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-trainer"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPIs -->
+  <div class="grid kpis">
+    <div class="card kpi">
+      <div class="kicon" style="background:#e3eefc;color:#2f75d6"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+      <div class="kbody"><div class="klabel">Evaluación final</div>
+        <div class="kvalue"><input type="number" min="0" max="100" id="f-final" aria-label="Evaluación final">%</div>
+        <div class="bar"><i id="finalBar" style="background:var(--blue)"></i></div></div>
+    </div>
+    <div class="card kpi">
+      <div class="kicon" style="background:#ece7fd;color:#6e50e0"><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg></div>
+      <div class="kbody"><div class="klabel">Promedio de evaluaciones</div>
+        <div class="kvalue"><span id="avgVal">0</span>%</div>
+        <div class="bar"><i id="avgBar" style="background:var(--purple)"></i></div></div>
+    </div>
+    <div class="card kpi">
+      <div class="kicon" style="background:#dff5f2;color:#23a597"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 2 5 5"/></svg></div>
+      <div class="kbody"><div class="klabel">Asistencia</div>
+        <div class="kvalue"><input type="number" min="0" max="100" id="f-att" aria-label="Asistencia">%</div>
+        <div class="bar"><i id="attBar" style="background:var(--teal)"></i></div></div>
+    </div>
+    <div class="card kpi">
+      <div class="kicon" id="statusIcon" style="background:var(--green);color:#fff"><svg class="i" viewBox="0 0 24 24" style="stroke-width:3"><path d="m5 12 5 5 9-10"/></svg></div>
+      <div class="kbody"><div class="klabel">Resultado CAPA</div>
+        <div class="kstatus" id="statusKpi">APROBADO</div>
+        <div class="small" id="statusSub">Para transición a clínica</div></div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <section class="card results grid">
+    <h3><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>Resultados por área de capacitación</h3>
+    <div class="results-grid">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Área evaluada</th><th class="center">Resultado</th><th class="center">Estado</th></tr></thead>
+          <tbody id="areaTable"></tbody>
+        </table>
+      </div>
+      <div>
+        <div class="chart-title">Desempeño por área</div>
+        <div class="chart" id="chart"></div>
+        <div class="xlabels" id="xlabels"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fila 3 -->
+  <div class="grid row3">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Desempeño práctico en clínica</h3>
+      <table>
+        <thead><tr><th>Aspecto evaluado</th><th>Nivel de desempeño</th></tr></thead>
+        <tbody id="practice"></tbody>
+      </table>
+      <div class="small" style="margin-top:8px" data-noprint>Haz clic en el nivel para cambiarlo.</div>
+    </section>
+
+    <section class="card pad soft-green">
+      <h3><svg class="i" viewBox="0 0 24 24" style="fill:currentColor"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9Z"/></svg>Fortalezas</h3>
+      <div class="items" id="strengths"></div>
+      <button class="add" data-add="strengths">+ Agregar fortaleza</button>
+    </section>
+
+    <section class="card pad soft-orange">
+      <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" style="fill:currentColor"/></svg>Oportunidades de seguimiento</h3>
+      <div class="items" id="opportunities"></div>
+      <button class="add" data-add="opportunities">+ Agregar oportunidad</button>
+    </section>
+  </div>
+
+  <!-- Fila inferior -->
+  <div class="grid row2">
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan de seguimiento en clínica</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Seguimiento</th><th>Responsable</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody id="plan"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card pad">
+      <h3><svg class="i" viewBox="0 0 24 24" style="stroke-width:2.5"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Resultado de capacitación</h3>
+      <div class="banner" id="banner"></div>
+      <div class="summary" id="f-summary" contenteditable="true" aria-label="Resumen del resultado"></div>
+      <div class="notes-h"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>Observaciones del capacitador</div>
+      <textarea class="notes" id="f-notes" aria-label="Observaciones del capacitador"></textarea>
+      
+    </section>
+  </div>
+</main>
+</div>
+
+<script>
+const ICONS = {
+  home:'<path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 2 5 5"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"/><path d="M4 19V5M9 8h6"/>',
+  chart:'<path d="M6 20V11M12 20V5M18 20v-6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
+};
+document.querySelectorAll('.nav button').forEach(b=>{
+  b.innerHTML = `<svg class="i" viewBox="0 0 24 24">${ICONS[b.dataset.ic]}</svg><span>${b.textContent.trim()}</span>`; b.title = b.textContent.trim();
+});
+
+const DEFAULTS = {
+  name:"María López", role:"Asesor Multiskills", clinic:"Majadas", date:"2026-09-14",
+  period:"14 – 25 septiembre", trainer:"CAPA", photo:"", final:92, att:100,
+  areas:[
+    {n:"ATP / Ruta del paciente", s:"ATP", v:95},
+    {n:"SAM Citas", s:"SAM Citas", v:90},
+    {n:"VivoLife", s:"VivoLife", v:85},
+    {n:"Seguros", s:"Seguros", v:78},
+    {n:"Facturación Odoo", s:"Odoo", v:92},
+    {n:"Farmacia / BlueMeds", s:"Farmacia", v:88},
+    {n:"Ventas y orientación", s:"Ventas", v:82}
+  ],
+  practical:[
+    {n:"Atención al paciente", a:true},{n:"Manejo de sistemas", a:true},{n:"Facturación", a:true},
+    {n:"Seguros", a:false},{n:"Orientación y venta", a:true},{n:"Resolución de casos", a:false},{n:"Apego al proceso", a:true}
+  ],
+  strengths:["Buena comunicación con pacientes","Manejo adecuado de Odoo","Buena adaptación al flujo de clínica","Actitud proactiva y disposición para aprender"],
+  opportunities:["Reforzar validación de seguros","Mayor seguridad al ofrecer VivoLife","Practicar escenarios de objeciones","Continuar fortaleciendo conocimiento de planes y coberturas"],
+  plan:[
+    {s:"Feedback inicial", r:"Encargada clínica", f:"Día 3", e:0},
+    {s:"Seguimiento adaptación", r:"Encargada + CAPA", f:"Día 7", e:0},
+    {s:"Refuerzo identificado", r:"CAPA", f:"Según necesidad", e:0},
+    {s:"Seguimiento final", r:"CAPA", f:"Día 30", e:0}
+  ],
+  summary:"El colaborador finaliza satisfactoriamente su proceso de capacitación. Se recomienda acompañamiento durante sus primeros días en operación, principalmente en los aspectos identificados como oportunidades de seguimiento.",
+  notes:"Demuestra buen dominio de los procesos. Se recomienda reforzar temas de seguros y continuar practicando escenarios de venta en piso."
+};
+const DRAFT_KEY = "bm-capa-borrador-v2";
+const clone = o => JSON.parse(JSON.stringify(o));
+let S = clone(DEFAULTS), currentId = null, dirty = false;
+try {
+  const d = JSON.parse(localStorage.getItem(DRAFT_KEY));
+  if (d && d.S) { S = Object.assign(clone(DEFAULTS), d.S); currentId = d.id || null; dirty = !!d.dirty; }
+} catch(e){}
+
+const PASS = 80;
+const BAR_COLORS = ["var(--blue)","var(--purple)","var(--teal)","var(--blue)","var(--purple)","var(--teal)","var(--green-bar)"];
+const STATUS = [{t:"Pendiente",c:"g"},{t:"En curso",c:"b"},{t:"Completado",c:""}];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clamp = n => Math.min(100, Math.max(0, Math.round(Number(n)||0)));
+
+let draftT;
+function save(){
+  dirty = true; updateSaveState();
+  clearTimeout(draftT);
+  draftT = setTimeout(()=>{ try { localStorage.setItem(DRAFT_KEY, JSON.stringify({S, id:currentId, dirty})); } catch(e){} }, 300);
+}
+function persistDraft(){ try { localStorage.setItem(DRAFT_KEY, JSON.stringify({S, id:currentId, dirty})); } catch(e){} }
+
+function initials(n){ return n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "?"; }
+function renderAvatar(){
+  $("avatarInner").innerHTML = S.photo ? `<img src="${S.photo}" alt="Foto de ${esc(S.name)}">` : esc(initials(S.name));
+}
+
+/* Campos simples */
+const binds = {name:"f-name", role:"f-role", clinic:"f-clinic", date:"f-date", period:"f-period", trainer:"f-trainer", notes:"f-notes"};
+Object.entries(binds).forEach(([k,id])=>{
+  const el = $(id); el.value = S[k];
+  el.addEventListener("input",()=>{ S[k] = el.value; if(k==="name") renderAvatar(); save(); });
+});
+$("f-summary").textContent = S.summary;
+$("f-summary").addEventListener("input",e=>{ S.summary = e.target.innerText; save(); });
+
+["final","att"].forEach(k=>{
+  const el = $(k==="final"?"f-final":"f-att"); el.value = S[k];
+  el.addEventListener("input",()=>{ S[k] = clamp(el.value); fit(el); updateKPIs(); save(); });
+  el.addEventListener("blur",()=>{ el.value = S[k]; });
+});
+
+$("photoIn").addEventListener("change",e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const img = new Image(), r = new FileReader();
+  r.onload = () => { img.onload = () => {
+    const c = document.createElement("canvas"), size = 240; c.width = c.height = size;
+    const m = Math.min(img.width,img.height);
+    c.getContext("2d").drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,size,size);
+    S.photo = c.toDataURL("image/jpeg",.85); renderAvatar(); save();
+  }; img.src = r.result; };
+  r.readAsDataURL(file);
+});
+
+/* Áreas: tabla + gráfica */
+function renderAreas(){
+  $("areaTable").innerHTML = S.areas.map((a,i)=>`
+    <tr>
+      <td><input class="cell-in" value="${esc(a.n)}" data-area="${i}" data-f="n" aria-label="Nombre del área"></td>
+      <td class="center"><input class="cell-in num-in" type="number" min="0" max="100" value="${a.v}" data-area="${i}" data-f="v" aria-label="Resultado ${esc(a.n)}">%</td>
+      <td class="center"><span class="dot ${a.v<PASS?"y":""}" id="dot${i}"></span></td>
+    </tr>`).join("");
+  renderChart();
+}
+function renderChart(){
+  let g = "";
+  for(let v=0; v<=100; v+=20) g += `<div class="gridline" style="bottom:${v}%"><b>${v}</b></div>`;
+  $("chart").innerHTML = g + `<div class="bars">${S.areas.map((a,i)=>`
+    <div class="col"><div class="stick" style="height:${a.v}%;background:${a.v<PASS?"var(--coral)":BAR_COLORS[i%BAR_COLORS.length]}"><b>${a.v}%</b></div></div>`).join("")}</div>`;
+  $("xlabels").innerHTML = S.areas.map(a=>`<div>${esc(a.s||a.n)}</div>`).join("");
+}
+$("areaTable").addEventListener("input",e=>{
+  const i = e.target.dataset.area; if(i===undefined) return;
+  if(e.target.dataset.f==="v"){
+    S.areas[i].v = clamp(e.target.value);
+    $("dot"+i).className = "dot " + (S.areas[i].v<PASS?"y":"");
+  } else {
+    S.areas[i].n = e.target.value; S.areas[i].s = e.target.value.split(/[\/]/)[0].trim().split(" ").slice(0,2).join(" ");
+  }
+  renderChart(); updateKPIs(); save();
+});
+$("areaTable").addEventListener("blur",e=>{
+  if(e.target.dataset.f==="v") e.target.value = S.areas[e.target.dataset.area].v;
+},true);
+
+/* Desempeño práctico */
+function renderPractice(){
+  $("practice").innerHTML = S.practical.map((p,i)=>`
+    <tr><td>${esc(p.n)}</td>
+    <td><button class="chip" data-p="${i}"><span class="dot ${p.a?"":"y"}"></span>${p.a?"Lo realiza de forma autónoma":"Requiere acompañamiento"}</button></td></tr>`).join("");
+}
+$("practice").addEventListener("click",e=>{
+  const b = e.target.closest("[data-p]"); if(!b) return;
+  S.practical[b.dataset.p].a = !S.practical[b.dataset.p].a; renderPractice(); save();
+});
+
+/* Listas */
+const CHECK = '<svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>';
+function renderList(key){
+  const isS = key==="strengths";
+  $(key).innerHTML = S[key].map((t,i)=>`
+    <div class="item">
+      <span class="ico" style="background:${isS?"var(--green)":"var(--orange)"}">${isS?CHECK:"!"}</span>
+      <span class="txt" contenteditable="true" data-list="${key}" data-i="${i}">${esc(t)}</span>
+      <button class="del" data-del="${key}" data-i="${i}" aria-label="Eliminar">×</button>
+    </div>`).join("");
+}
+["strengths","opportunities"].forEach(key=>{
+  $(key).addEventListener("input",e=>{ const el=e.target; if(el.dataset.list){ S[key][el.dataset.i] = el.innerText.trim(); save(); } });
+  $(key).addEventListener("click",e=>{ const b=e.target.closest("[data-del]"); if(b){ S[key].splice(b.dataset.i,1); renderList(key); save(); } });
+});
+document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>{
+  const key = b.dataset.add; S[key].push("Nuevo punto"); renderList(key); save();
+  const items = $(key).querySelectorAll(".txt"), last = items[items.length-1];
+  last.focus(); document.getSelection().selectAllChildren(last);
+}));
+
+/* Plan de seguimiento */
+function renderPlan(){
+  $("plan").innerHTML = S.plan.map((p,i)=>`
+    <tr>
+      <td><input class="cell-in" value="${esc(p.s)}" data-plan="${i}" data-f="s" aria-label="Seguimiento"></td>
+      <td><input class="cell-in" value="${esc(p.r)}" data-plan="${i}" data-f="r" aria-label="Responsable"></td>
+      <td><input class="cell-in" value="${esc(p.f)}" data-plan="${i}" data-f="f" aria-label="Fecha"></td>
+      <td><button class="status" data-st="${i}"><span class="dot ${STATUS[p.e].c}"></span>${STATUS[p.e].t}</button></td>
+    </tr>`).join("");
+}
+$("plan").addEventListener("input",e=>{ const el=e.target; if(el.dataset.plan!==undefined){ S.plan[el.dataset.plan][el.dataset.f]=el.value; save(); } });
+$("plan").addEventListener("click",e=>{
+  const b = e.target.closest("[data-st]"); if(!b) return;
+  const p = S.plan[b.dataset.st]; p.e = (p.e+1)%STATUS.length; renderPlan(); save();
+});
+
+/* KPIs y resultado */
+function updateKPIs(){
+  const avg = S.areas.length ? Math.round(S.areas.reduce((t,a)=>t+a.v,0)/S.areas.length) : 0;
+  $("avgVal").textContent = avg;
+  $("avgBar").style.width = avg+"%";
+  $("finalBar").style.width = S.final+"%";
+  $("attBar").style.width = S.att+"%";
+  const ok = avg>=PASS && S.final>=PASS;
+  const st = $("statusKpi"), ic = $("statusIcon");
+  st.textContent = ok ? "APROBADO" : "REQUIERE REFUERZO";
+  st.style.color = ok ? "var(--green)" : "#c9811d";
+  st.style.fontSize = ok ? "24px" : "18px";
+  $("statusSub").textContent = ok ? "Para transición a clínica" : "Antes de transición a clínica";
+  ic.style.background = ok ? "var(--green)" : "var(--orange)";
+  ic.innerHTML = ok ? '<svg class="i" viewBox="0 0 24 24" style="stroke-width:3"><path d="m5 12 5 5 9-10"/></svg>'
+                    : '<span style="font-weight:800;font-size:20px">!</span>';
+  const bn = $("banner");
+  bn.className = "banner" + (ok ? "" : " warn");
+  bn.innerHTML = `<div class="bicon">${ok ? '<svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>' : '<span style="font-weight:800;font-size:22px">!</span>'}</div>
+    <div><strong>${ok?"APROBADO":"REQUIERE REFUERZO"}</strong><span>${ok?"PARA TRANSICIÓN A CLÍNICA":"ANTES DE TRANSICIÓN A CLÍNICA"}</span></div>`;
+}
+
+function fit(el){ el.style.width = (String(el.value).length + .7) + "ch"; }
+function renderAll(){
+  fit($("f-final")); fit($("f-att"));
+  renderAvatar(); renderAreas(); renderPractice();
+  renderList("strengths"); renderList("opportunities"); renderPlan(); updateKPIs();
+}
+renderAll();
+
+$("printBtn").addEventListener("click",()=>{
+  const prev = document.title;
+  document.title = `Reporte CAPA - ${S.name}`;
+  window.print();
+  setTimeout(()=>document.title = prev, 500);
+});
+/* ---------- Carga de un reporte en el editor ---------- */
+function fillFields(){
+  Object.entries(binds).forEach(([k,id])=>$(id).value = S[k] ?? "");
+  $("f-final").value = S.final; $("f-att").value = S.att;
+  $("f-summary").textContent = S.summary || "";
+  renderAll();
+}
+function compute(r){
+  const avg = r.areas && r.areas.length ? Math.round(r.areas.reduce((t,a)=>t+a.v,0)/r.areas.length) : 0;
+  return {avg, ok: avg>=PASS && r.final>=PASS};
+}
+function updateSaveState(){
+  const el = $("saveState");
+  if (dirty) { el.textContent = currentId ? "Cambios sin guardar" : "Reporte nuevo sin guardar"; el.className = "savestate dirty"; }
+  else { el.textContent = currentId ? "Guardado" : ""; el.className = "savestate"; }
+  $("delBtn").hidden = !currentId;
+}
+function confirmLeave(){
+  return !dirty || confirm("Tienes cambios sin guardar en este reporte. ¿Continuar sin guardarlos?");
+}
+
+/* ---------- Almacenamiento: compartido (db) o local ---------- */
+const LOCAL_KEY = "bm-capa-reportes-v1";
+let reports = [];           // [{id, ...data}]
+let store = null;           // {put, remove}
+let readOnly = false;
+
+function localStore(){
+  const read = () => { try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; } catch(e){ return []; } };
+  const write = arr => { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); } catch(e){ throw {code:"local"}; } };
+  reports = read(); renderPanel();
+  return {
+    shared:false,
+    async put(id,data){ const arr = read().filter(r=>r.id!==id); arr.push({id,...data}); write(arr); reports = arr; renderPanel(); },
+    async remove(id){ const arr = read().filter(r=>r.id!==id); write(arr); reports = arr; renderPanel(); }
+  };
+}
+
+async function initStore(){
+  let db = null;
+  try { if (window.claude && claude.use) db = await claude.use("db"); } catch(e){}
+  if (!db){ store = localStore(); return; }
+  const col = db.collection("reports");
+  col.orderBy("updatedAt","desc").limit(1000).onSnapshot(snap=>{
+    reports = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderPanel();
+  }, err=>{ $("plist").innerHTML = `<div class="empty">No se pudo cargar el historial. Recarga la página para intentarlo de nuevo.</div>`; });
+  store = {
+    shared:true,
+    put:(id,data)=>col.doc(id).set(data),
+    remove:id=>col.doc(id).delete()
+  };
+}
+
+/* ---------- Panel lateral ---------- */
+let query = "", statusFilter = "all", clinicFilter = "", openKey = null;
+const keyOf = n => (n||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const fmtDate = t => t ? new Date(t).toLocaleDateString("es-GT",{day:"numeric",month:"short",year:"numeric"}) : "";
+
+function renderPanel(){
+  const groups = new Map();
+  reports.forEach(r=>{
+    const k = keyOf(r.name) || "(sin nombre)";
+    if(!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  });
+  let list = [...groups.entries()].map(([k,arr])=>{
+    arr.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    return {k, latest:arr[0], all:arr};
+  }).sort((a,b)=>(b.latest.updatedAt||0)-(a.latest.updatedAt||0));
+
+  // opciones de clínica
+  const clinics = [...new Set(reports.map(r=>r.clinic).filter(Boolean))].sort();
+  const cf = $("clinicFilter");
+  cf.innerHTML = `<option value="">Todas las clínicas</option>` + clinics.map(c=>`<option ${c===clinicFilter?"selected":""}>${esc(c)}</option>`).join("");
+
+  $("pTotal").textContent = list.length ? `${list.length}` : "";
+
+  const q = keyOf(query);
+  list = list.filter(g=>{
+    const r = g.latest, ok = compute(r).ok;
+    if (q && !(keyOf(r.name).includes(q) || keyOf(r.clinic).includes(q) || keyOf(r.role).includes(q))) return false;
+    if (statusFilter==="ok" && !ok) return false;
+    if (statusFilter==="no" && ok) return false;
+    if (clinicFilter && r.clinic!==clinicFilter) return false;
+    return true;
+  });
+
+  if (!reports.length){
+    $("plist").innerHTML = `<div class="empty">Aún no hay reportes guardados.<br>Completa el reporte y pulsa <b>Guardar reporte</b> para que aparezca aquí.</div>`;
+    return;
+  }
+  if (!list.length){
+    $("plist").innerHTML = `<div class="empty">Ningún colaborador coincide con la búsqueda.</div>`;
+    return;
+  }
+  $("plist").innerHTML = list.map(g=>{
+    const r = g.latest, ok = compute(r).ok, open = g.k===openKey;
+    const av = r.photo ? `<img src="${r.photo}" alt="">` : esc(initials(r.name||"?"));
+    return `
+    <button class="prow ${open?"open":""}" data-key="${esc(g.k)}" aria-expanded="${open}">
+      <span class="pav">${av}</span>
+      <span class="pinfo"><b>${esc(r.name||"Sin nombre")}</b><span>${esc(r.clinic||"")}</span></span>
+      <span class="dot ${ok?"":"y"}" title="${ok?"Aprobado":"Requiere refuerzo"}"></span>
+      <span class="pcount" title="Reportes">${g.all.length}</span>
+    </button>
+    ${open ? `<div class="hist">
+      ${g.all.map(h=>{ const c = compute(h); return `
+        <button class="hitem ${h.id===currentId?"cur":""}" data-id="${esc(h.id)}">
+          <b>${esc(h.period||"Sin período")}</b>
+          <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${h.final}%</span>
+          <small>Guardado ${fmtDate(h.updatedAt)}</small>
+        </button>`; }).join("")}
+      <button class="hnew" data-newfor="${esc(g.latest.id)}">+ Nuevo reporte para ${esc((r.name||"").split(" ")[0])}</button>
+    </div>` : ""}`;
+  }).join("");
+}
+
+$("q").addEventListener("input",e=>{ query = e.target.value; renderPanel(); });
+$("filters").addEventListener("click",e=>{
+  const b = e.target.closest("[data-f]"); if(!b) return;
+  statusFilter = b.dataset.f;
+  document.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on", x===b));
+  renderPanel();
+});
+$("clinicFilter").addEventListener("change",e=>{ clinicFilter = e.target.value; renderPanel(); });
+
+$("plist").addEventListener("click",e=>{
+  const row = e.target.closest("[data-key]");
+  if (row){ openKey = openKey===row.dataset.key ? null : row.dataset.key; renderPanel(); return; }
+  const h = e.target.closest("[data-id]");
+  if (h){ openReport(h.dataset.id); return; }
+  const nf = e.target.closest("[data-newfor]");
+  if (nf){ newReport(reports.find(r=>r.id===nf.dataset.newfor)); }
+});
+
+function openReport(id){
+  const r = reports.find(x=>x.id===id); if(!r) return;
+  if (id!==currentId && !confirmLeave()) return;
+  const {id:_, ...data} = r;
+  S = Object.assign(clone(DEFAULTS), clone(data));
+  currentId = id; dirty = false;
+  openKey = keyOf(S.name);
+  fillFields(); persistDraft(); updateSaveState(); renderPanel(); closePanel();
+  window.scrollTo({top:0});
+}
+
+function newReport(base){
+  if (!confirmLeave()) return;
+  S = clone(DEFAULTS);
+  if (base){
+    Object.assign(S,{name:base.name, role:base.role, clinic:base.clinic, date:base.date, photo:base.photo||"", trainer:base.trainer});
+    S.period = "";
+  } else {
+    S.name = ""; S.photo = ""; S.period = "";
+  }
+  S.createdAt = null;
+  currentId = null; dirty = true;
+  fillFields(); persistDraft(); updateSaveState(); renderPanel(); closePanel();
+  $(base ? "f-period" : "f-name").focus();
+}
+$("newBtn").addEventListener("click",()=>newReport(null));
+
+/* ---------- Guardar / eliminar ---------- */
+const newId = () => "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+$("saveBtn").addEventListener("click", async ()=>{
+  if (!S.name.trim()){ alert("Escribe el nombre del colaborador antes de guardar."); $("f-name").focus(); return; }
+  if (!store) return;
+  const btn = $("saveBtn"); btn.disabled = true;
+  const id = currentId || newId();
+  const now = Date.now();
+  const data = clone(S);
+  data.createdAt = S.createdAt || now;
+  data.updatedAt = now;
+  try {
+    await store.put(id, data);
+    S.createdAt = data.createdAt; S.updatedAt = now;
+    currentId = id; dirty = false; openKey = keyOf(S.name);
+    persistDraft(); updateSaveState(); renderPanel();
+    $("saveState").textContent = "Guardado"; 
+  } catch(err){
+    const msg = err && err.code==="invalid_argument"
+      ? "No tienes permiso para guardar reportes en este dashboard. Pide acceso de colaborador a quien lo comparte."
+      : err && err.code==="quota_exceeded" ? "Se alcanzó el límite de reportes guardados. Elimina reportes antiguos para continuar."
+      : "No se pudo guardar el reporte. Inténtalo de nuevo.";
+    $("saveState").textContent = msg; $("saveState").className = "savestate dirty";
+  } finally { btn.disabled = false; }
+});
+
+$("delBtn").addEventListener("click", async ()=>{
+  if (!currentId || !store) return;
+  if (!confirm(`¿Eliminar este reporte de ${S.name}? Esta acción no se puede deshacer.`)) return;
+  try {
+    await store.remove(currentId);
+    currentId = null; dirty = true; persistDraft(); updateSaveState(); renderPanel();
+    $("saveState").textContent = "Reporte eliminado";
+  } catch(e){ $("saveState").textContent = "No se pudo eliminar el reporte."; }
+});
+
+/* ---------- Descargar ---------- */
+$("printBtn").addEventListener("click",()=>{
+  const prev = document.title;
+  document.title = `Reporte CAPA - ${S.name || "colaborador"}`;
+  window.print();
+  setTimeout(()=>document.title = prev, 500);
+});
+
+/* ---------- Panel en móvil ---------- */
+function closePanel(){ $("panel").classList.remove("show"); $("scrim").classList.remove("show"); }
+$("panelBtn").addEventListener("click",()=>{ $("panel").classList.add("show"); $("scrim").classList.add("show"); $("q").focus(); });
+$("scrim").addEventListener("click",closePanel);
+document.querySelector('.nav [data-ic="users"]').addEventListener("click",()=>{
+  if (matchMedia("(max-width:900px)").matches) $("panelBtn").click(); else $("q").focus();
+});
+window.addEventListener("beforeunload",()=>persistDraft());
+
+if (S.name) openKey = keyOf(S.name);
+updateSaveState();
+renderPanel();
+initStore();
+</script>
+<style>@media print{[data-noprint]{display:none}}</style>
+</body>
+</html>
