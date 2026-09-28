@@ -328,6 +328,18 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .notes{min-height:90px}
 .notes-h{cursor:pointer}
 @media print{.field .val{border:0;padding:0;background:transparent}}
+
+/* Resultados por área: la tabla nunca se colapsa */
+.results-grid{grid-template-columns:minmax(280px,1fr) minmax(0,1.2fr)}
+.results-grid > *{min-width:0}
+.results-grid.stack{grid-template-columns:1fr}
+.xlabels div{min-width:0;hyphens:auto;-webkit-hyphens:auto;font-size:10px}
+.num-in{width:56px!important;border:1px solid var(--line)!important;background:var(--bg)!important;padding:4px 6px!important}
+.num-in:focus{border-color:var(--blue)!important;background:var(--card)!important}
+@media print{.num-in{border:0!important;background:transparent!important}}
+.bars{gap:8px}.xlabels{gap:8px}
+@media (max-width:900px){.results-grid{grid-template-columns:1fr}}
+@media print{.results-grid.stack{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -617,6 +629,7 @@ function renderAreas(){
   renderChart();
 }
 function renderChart(){
+  const rg = document.querySelector(".results-grid"); if (rg) rg.classList.toggle("stack", S.areas.length > 8);
   let g = "";
   for(let v=0; v<=100; v+=20) g += `<div class="gridline" style="bottom:${v}%"><b>${v}</b></div>`;
   $("chart").innerHTML = g + `<div class="bars">${S.areas.map((a,i)=>`
