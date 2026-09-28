@@ -340,6 +340,32 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .bars{gap:8px}.xlabels{gap:8px}
 @media (max-width:900px){.results-grid{grid-template-columns:1fr}}
 @media print{.results-grid.stack{grid-template-columns:1fr}}
+@media print{#summaryReset,#finalLink{display:none!important}}
+
+/* ---------- Impresión / PDF: solo el reporte ---------- */
+.print-brand{display:none}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  html,body{background:#fff!important}
+  body{zoom:.7}
+  .side,.panel,.scrim,.actions,.savestate,.panel-toggle,.view:not(#view-collab),.add,.del,#summaryReset,#finalLink,[data-noprint]{display:none!important}
+  .app,.app.nopanel{display:block!important}
+  .main{padding:0!important;max-width:none!important;width:auto!important}
+  #view-collab{display:block!important}
+  .print-brand{display:flex!important;align-items:center;gap:10px;color:#0b2e5b;margin-bottom:6px}
+  .print-brand b{font-size:20px;line-height:.95}.print-brand small{display:block;font-size:14px;font-weight:400}
+  .top{margin-bottom:10px}
+  .kpis{grid-template-columns:repeat(4,1fr)!important}
+  .profile{grid-template-columns:auto 1fr!important}
+  .fields{grid-template-columns:repeat(4,1fr)!important}
+  .results-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)!important}
+  .results-grid.stack{grid-template-columns:1fr!important}
+  .row3{grid-template-columns:1.35fr 1fr 1fr!important}
+  .row3 > :first-child{grid-column:auto!important}
+  .row2{grid-template-columns:1fr 1fr!important}
+  .card{box-shadow:none!important;break-inside:avoid}
+  .results{break-inside:auto}
+}
 </style>
 </head>
 <body>
@@ -391,6 +417,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <section class="view" id="view-training" hidden></section>
 <section class="view" id="view-settings" hidden></section>
 <div class="view" id="view-collab">
+  <div class="print-brand"><svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true"><g fill="#0b2e5b"><ellipse cx="20" cy="10" rx="6" ry="9" opacity=".95"/><ellipse cx="20" cy="10" rx="6" ry="9" transform="rotate(120 20 20)" opacity=".75"/><ellipse cx="20" cy="10" rx="6" ry="9" transform="rotate(240 20 20)" opacity=".55"/></g></svg><b>Blue<small>Medical</small></b></div>
   <div class="top">
     <div>
       <h1>Reporte Final de Capacitación</h1>
@@ -435,7 +462,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="kicon" style="background:#e3eefc;color:#2f75d6"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
       <div class="kbody"><div class="klabel">Evaluación final</div>
         <div class="kvalue"><input type="number" min="0" max="100" id="f-final" aria-label="Evaluación final">%</div>
-        <div class="bar"><i id="finalBar" style="background:var(--blue)"></i></div></div>
+        <div class="bar"><i id="finalBar" style="background:var(--blue)"></i></div><div class="small" id="finalLink" hidden style="margin-top:6px">Se toma del área «Evaluación final»</div></div>
     </div>
     <div class="card kpi">
       <div class="kicon" style="background:#ece7fd;color:#6e50e0"><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg></div>
@@ -515,6 +542,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <h3><svg class="i" viewBox="0 0 24 24" style="stroke-width:2.5"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Resultado de capacitación</h3>
       <div class="banner" id="banner"></div>
       <div class="summary" id="f-summary" contenteditable="true" aria-label="Resumen del resultado"></div>
+      <button class="hnew" id="summaryReset" hidden style="margin:-4px 0 10px;padding-left:0">↺ Usar texto automático según el resultado</button>
       <label class="notes-h" for="f-notes"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>Observaciones del capacitador</label>
       <textarea class="notes" id="f-notes" placeholder="Escribe aquí las observaciones del capacitador…" aria-label="Observaciones del capacitador"></textarea>
       
@@ -598,7 +626,8 @@ Object.entries(binds).forEach(([k,id])=>{
   el.addEventListener("input",()=>{ S[k] = el.value; if(k==="name") renderAvatar(); save(); });
 });
 $("f-summary").textContent = S.summary;
-$("f-summary").addEventListener("input",e=>{ S.summary = e.target.innerText; save(); });
+$("f-summary").addEventListener("input",e=>{ S.summary = e.target.innerText; S.summaryAuto = false; $("summaryReset").hidden = false; save(); });
+$("summaryReset").addEventListener("click",()=>{ S.summaryAuto = true; S.summary = ""; updateKPIs(); save(); });
 
 ["final","att"].forEach(k=>{
   const el = $(k==="final"?"f-final":"f-att"); el.value = S[k];
@@ -699,10 +728,21 @@ $("plan").addEventListener("click",e=>{
 });
 
 /* KPIs y resultado */
+/* Evaluación final vinculada al área "Evaluación final" y resumen automático */
+const normTxt = t => (t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+function finalArea(r){ return (r.areas||[]).find(a=>normTxt(a.n)==="evaluacion final"); }
+function getFinal(r){ const a = finalArea(r); return a ? (Number(a.v)||0) : (Number(r.final)||0); }
+const SUMMARY_OK = "El colaborador finaliza satisfactoriamente su proceso de capacitación. Se recomienda acompañamiento durante sus primeros días en operación, principalmente en los aspectos identificados como oportunidades de seguimiento.";
+const SUMMARY_NO = "El colaborador concluye su proceso de capacitación, pero aún no alcanza el nivel requerido para la transición a clínica. Se recomienda un plan de refuerzo en los aspectos identificados como oportunidades de seguimiento antes de su incorporación a la operación.";
+function isAutoSummary(){ return S.summaryAuto === true || !S.summary || S.summary===SUMMARY_OK || S.summary===SUMMARY_NO; }
 function updateKPIs(){
   const avg = S.areas.length ? Math.round(S.areas.reduce((t,a)=>t+a.v,0)/S.areas.length) : 0;
   $("avgVal").textContent = avg;
   $("avgBar").style.width = avg+"%";
+  const fa = finalArea(S), fin = $("f-final");
+  if (fa){ S.final = Number(fa.v)||0; fin.value = S.final; fit(fin); fin.readOnly = true; fin.title = "Se toma del área «Evaluación final» de la tabla"; }
+  else { fin.readOnly = false; fin.title = ""; }
+  $("finalLink").hidden = !fa;
   $("finalBar").style.width = S.final+"%";
   $("attBar").style.width = S.att+"%";
   const ok = avg>=PASS && S.final>=PASS;
@@ -718,6 +758,11 @@ function updateKPIs(){
   bn.className = "banner" + (ok ? "" : " warn");
   bn.innerHTML = `<div class="bicon">${ok ? '<svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>' : '<span style="font-weight:800;font-size:22px">!</span>'}</div>
     <div><strong>${ok?"APROBADO":"REQUIERE REFUERZO"}</strong><span>${ok?"PARA TRANSICIÓN A CLÍNICA":"ANTES DE TRANSICIÓN A CLÍNICA"}</span></div>`;
+  if (isAutoSummary()){
+    S.summary = ok ? SUMMARY_OK : SUMMARY_NO; S.summaryAuto = true;
+    const sm = $("f-summary"); if (document.activeElement !== sm) sm.textContent = S.summary;
+  }
+  $("summaryReset").hidden = isAutoSummary();
 }
 
 function fit(el){ el.style.width = (String(el.value).length + .7) + "ch"; }
@@ -744,7 +789,7 @@ function fillFields(){
 }
 function compute(r){
   const avg = r.areas && r.areas.length ? Math.round(r.areas.reduce((t,a)=>t+a.v,0)/r.areas.length) : 0;
-  return {avg, ok: avg>=PASS && r.final>=PASS};
+  return {avg, ok: avg>=PASS && getFinal(r)>=PASS};
 }
 function updateSaveState(){
   const el = $("saveState");
@@ -850,7 +895,7 @@ function renderPanel(){
       ${g.all.map(h=>{ const c = compute(h); return `
         <button class="hitem ${h.id===currentId?"cur":""}" data-id="${esc(h.id)}">
           <b>${esc(h.period||"Sin período")}</b>
-          <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${h.final}%</span>
+          <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${getFinal(h)}%</span>
           <small>Guardado ${fmtDate(h.updatedAt)}</small>
         </button>`; }).join("")}
       <button class="hnew" data-newfor="${esc(g.latest.id)}">+ Nuevo reporte para ${esc((r.name||"").split(" ")[0])}</button>
@@ -1057,7 +1102,7 @@ function renderHome(){
   }
   const ok = latest.filter(r=>compute(r).ok);
   const pct = Math.round(ok.length*100/latest.length);
-  const avgFinal = Math.round(latest.reduce((t,r)=>t+(Number(r.final)||0),0)/latest.length);
+  const avgFinal = Math.round(latest.reduce((t,r)=>t+getFinal(r),0)/latest.length);
   const avgAtt = Math.round(latest.reduce((t,r)=>t+(Number(r.att)||0),0)/latest.length);
 
   // promedio por área
@@ -1102,7 +1147,7 @@ function renderHome(){
     </section>
     <section class="card pad soft-orange">
       <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Requieren refuerzo</h3>
-      ${need.length ? `<div class="items">${need.map(r=>`<div class="item rowlink" data-open="${esc(r.id)}"><span class="ico" style="background:var(--orange)">!</span><span class="txt"><b>${esc(r.name)}</b><br><span class="small">${esc(r.clinic||"")} · promedio ${compute(r).avg}% · final ${r.final}%</span></span></div>`).join("")}</div>`
+      ${need.length ? `<div class="items">${need.map(r=>`<div class="item rowlink" data-open="${esc(r.id)}"><span class="ico" style="background:var(--orange)">!</span><span class="txt"><b>${esc(r.name)}</b><br><span class="small">${esc(r.clinic||"")} · promedio ${compute(r).avg}% · final ${getFinal(r)}%</span></span></div>`).join("")}</div>`
         : `<div class="small">Todos los colaboradores aprobaron su último reporte.</div>`}
     </section>
   </div>`;
@@ -1143,7 +1188,7 @@ function renderReports(){
     : `<table><thead><tr><th>Colaborador</th><th>Clínica</th><th>Período</th><th class="center">Final</th><th class="center">Promedio</th><th class="center">Asistencia</th><th>Resultado</th><th>Guardado</th></tr></thead>
       <tbody>${rows.map(r=>{ const c = compute(r); return `<tr class="rowlink" data-open="${esc(r.id)}">
         <td><b style="font-weight:600">${esc(r.name)}</b></td><td>${esc(r.clinic||"")}</td><td>${esc(r.period||"")}</td>
-        <td class="center">${r.final}%</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
+        <td class="center">${getFinal(r)}%</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
         <td><span class="pill inline ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"}</span></td><td class="small">${fmtDate(r.updatedAt)}</td></tr>`; }).join("")}</tbody></table>`;
   $("rMsg").textContent = reports.length ? `${rows.length} de ${reports.length} reportes` : "";
 }
@@ -1164,7 +1209,7 @@ async function exportCsv(){
   const areaNames = [...new Set(rows.flatMap(r=>(r.areas||[]).map(a=>a.n)))];
   const cell = v => `"${String(v??"").replace(/"/g,'""')}"`;
   const head = ["Colaborador","Puesto","Clínica","Fecha de ingreso","Período CAPA","Capacitador","Evaluación final","Promedio","Asistencia","Resultado",...areaNames,"Observaciones","Guardado"];
-  const lines = rows.map(r=>{ const c = compute(r); return [r.name,r.role,r.clinic,r.date,r.period,r.trainer,r.final,c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
+  const lines = rows.map(r=>{ const c = compute(r); return [r.name,r.role,r.clinic,r.date,r.period,r.trainer,getFinal(r),c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
     ...areaNames.map(n=>{ const a=(r.areas||[]).find(x=>x.n===n); return a?a.v:""; }), r.notes, fmtDate(r.updatedAt)].map(cell).join(","); });
   const data = "\ufeff" + [head.map(cell).join(","), ...lines].join("\r\n");
   const filename = `reportes-capa-${new Date().toISOString().slice(0,10)}.csv`;
