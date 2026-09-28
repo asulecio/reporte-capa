@@ -317,6 +317,17 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 }
 @media (max-width:520px){ .stats{grid-template-columns:1fr 1fr} .hbar{grid-template-columns:100px 1fr 40px} .frow{grid-template-columns:1fr 32px} .frow .short{display:none} .frow.plan{grid-template-columns:1fr 32px} .frow.plan .tin:not(:first-child){grid-column:1} }
 @media print{ .view:not(#view-collab){display:none!important} }
+
+/* Campos del perfil más visibles */
+.fields{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:12px!important}
+.field{border-left:0!important;padding:0!important;cursor:text}
+.field .val{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);transition:border-color .15s}
+.field .val:hover{border-color:#b9cbe3}
+.field .val:focus-within{border-color:var(--blue);background:var(--card)}
+.field input::placeholder,.pname::placeholder,.notes::placeholder{color:var(--muted);font-weight:400;opacity:.8}
+.notes{min-height:90px}
+.notes-h{cursor:pointer}
+@media print{.field .val{border:0;padding:0;background:transparent}}
 </style>
 </head>
 <body>
@@ -390,18 +401,18 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <input type="file" id="photoIn" accept="image/*" hidden>
     </label>
     <div>
-      <input class="pname" id="f-name" aria-label="Nombre del colaborador">
+      <input class="pname" id="f-name" placeholder="Nombre del colaborador" aria-label="Nombre del colaborador">
       <div class="prole"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-role" aria-label="Puesto"></div>
       <div class="fields">
-        <div class="field"><span>Clínica asignada</span>
+        <label class="field" for="f-clinic"><span>Clínica asignada</span>
           <div class="val"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <select id="f-clinic"></select></div></div>
-        <div class="field"><span>Fecha de ingreso</span>
-          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input type="date" id="f-date"></div></div>
-        <div class="field"><span>Período CAPA</span>
-          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input id="f-period"></div></div>
-        <div class="field"><span>Capacitador</span>
-          <div class="val"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-trainer"></div></div>
+            <select id="f-clinic"></select></div></label>
+        <label class="field" for="f-date"><span>Fecha de ingreso</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input type="date" id="f-date"></div></label>
+        <label class="field" for="f-period"><span>Período CAPA</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input id="f-period" placeholder="Ej. 14 – 25 septiembre"></div></label>
+        <label class="field" for="f-trainer"><span>Capacitador</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-trainer" placeholder="Nombre del capacitador"></div></label>
       </div>
     </div>
   </section>
@@ -492,8 +503,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <h3><svg class="i" viewBox="0 0 24 24" style="stroke-width:2.5"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Resultado de capacitación</h3>
       <div class="banner" id="banner"></div>
       <div class="summary" id="f-summary" contenteditable="true" aria-label="Resumen del resultado"></div>
-      <div class="notes-h"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>Observaciones del capacitador</div>
-      <textarea class="notes" id="f-notes" aria-label="Observaciones del capacitador"></textarea>
+      <label class="notes-h" for="f-notes"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>Observaciones del capacitador</label>
+      <textarea class="notes" id="f-notes" placeholder="Escribe aquí las observaciones del capacitador…" aria-label="Observaciones del capacitador"></textarea>
       
     </section>
   </div>
