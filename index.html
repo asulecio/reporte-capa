@@ -333,7 +333,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .results-grid{grid-template-columns:minmax(280px,1fr) minmax(0,1.2fr)}
 .results-grid > *{min-width:0}
 .results-grid.stack{grid-template-columns:1fr}
-.xlabels div{min-width:0;hyphens:auto;-webkit-hyphens:auto;font-size:10px}
+.xlabels div{min-width:0;overflow-wrap:break-word;font-size:10px;line-height:1.15}
 .num-in{width:56px!important;border:1px solid var(--line)!important;background:var(--bg)!important;padding:4px 6px!important}
 .num-in:focus{border-color:var(--blue)!important;background:var(--card)!important}
 @media print{.num-in{border:0!important;background:transparent!important}}
@@ -347,7 +347,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 @media print{
   @page{size:A4 portrait;margin:8mm}
   html,body{background:#fff!important}
-  body{zoom:.7}
   .side,.panel,.scrim,.actions,.savestate,.panel-toggle,.view:not(#view-collab),.add,.del,#summaryReset,#finalLink,[data-noprint]{display:none!important}
   .app,.app.nopanel{display:block!important}
   .main{padding:0!important;max-width:none!important;width:auto!important}
@@ -365,6 +364,43 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .row2{grid-template-columns:1fr 1fr!important}
   .card{box-shadow:none!important;break-inside:avoid}
   .results{break-inside:auto}
+}
+
+/* ---------- Maquetación de impresión (una sola página) ---------- */
+html.pm body{background:#fff}
+html.pm .side,html.pm .panel,html.pm .scrim,html.pm .actions,html.pm .savestate,html.pm .panel-toggle,html.pm .view:not(#view-collab),html.pm .add,html.pm .del,html.pm #summaryReset,html.pm #finalLink,html.pm [data-noprint]{display:none!important}
+html.pm .app{display:block!important}
+html.pm .main{padding:0!important;width:1100px!important;max-width:none!important}
+html.pm #view-collab{display:block!important}
+html.pm .print-brand{display:flex!important;align-items:center;gap:10px;color:#0b2e5b;margin-bottom:4px}
+html.pm .print-brand b{font-size:20px;line-height:.95}html.pm .print-brand small{display:block;font-size:14px;font-weight:400}
+html.pm .top{margin-bottom:8px}
+html.pm .grid{gap:10px;margin-bottom:10px}
+html.pm .card{box-shadow:none!important}
+html.pm .kpis{grid-template-columns:repeat(4,1fr)!important}
+html.pm .kpi{padding:12px 14px}
+html.pm .profile{grid-template-columns:auto 1fr!important;padding:12px 18px}
+html.pm .fields{grid-template-columns:repeat(4,1fr)!important}
+html.pm .field .val{border:0;padding:0;background:transparent}
+html.pm .results-grid,html.pm .results-grid.stack{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)!important;gap:20px}
+html.pm .results{padding:12px 16px}
+html.pm .results td,html.pm .results th{padding:4px 8px}
+html.pm .results th:nth-child(2){width:84px}html.pm .results th:nth-child(3){width:60px}
+html.pm .results td{white-space:nowrap}html.pm .results td:first-child{white-space:normal}
+html.pm .num-in{width:30px!important;text-align:right}
+html.pm .num-in{border:0!important;background:transparent!important;padding:0!important}
+html.pm .row3{grid-template-columns:1.35fr 1fr 1fr!important}
+html.pm .row3 > :first-child{grid-column:auto!important}
+html.pm .row2{grid-template-columns:1fr 1fr!important}
+html.pm .pad{padding:12px 16px}
+html.pm .pad td,html.pm .pad th{padding:4px 8px}
+html.pm .items{gap:7px}
+html.pm .notes{border-color:transparent;resize:none;padding:0;min-height:0;height:auto}
+html.pm .summary{margin:8px 0}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  html.pm .card,html.pm .results{break-inside:avoid}
+  html.pm body{min-height:0}
 }
 </style>
 </head>
@@ -663,7 +699,8 @@ function renderChart(){
   for(let v=0; v<=100; v+=20) g += `<div class="gridline" style="bottom:${v}%"><b>${v}</b></div>`;
   $("chart").innerHTML = g + `<div class="bars">${S.areas.map((a,i)=>`
     <div class="col"><div class="stick" style="height:${a.v}%;background:${a.v<PASS?"var(--coral)":BAR_COLORS[i%BAR_COLORS.length]}"><b>${a.v}%</b></div></div>`).join("")}</div>`;
-  $("xlabels").innerHTML = S.areas.map(a=>`<div>${esc(a.s||a.n)}</div>`).join("");
+  const shortLbl = a => { let t = (a.s && a.s !== a.n) ? a.s : a.n; t = t.replace(/^seguros\s*[-–]\s*/i,"").split(/[,(]/)[0].trim(); return t; };
+  $("xlabels").innerHTML = S.areas.map(a=>`<div title="${esc(a.n)}">${esc(shortLbl(a))}</div>`).join("");
 }
 $("areaTable").addEventListener("input",e=>{
   const i = e.target.dataset.area; if(i===undefined) return;
@@ -773,12 +810,6 @@ function renderAll(){
 }
 renderAll();
 
-$("printBtn").addEventListener("click",()=>{
-  const prev = document.title;
-  document.title = `Reporte CAPA - ${S.name}`;
-  window.print();
-  setTimeout(()=>document.title = prev, 500);
-});
 /* ---------- Carga de un reporte en el editor ---------- */
 function fillFields(){
   fillClinicOptions();
@@ -928,6 +959,7 @@ function openReport(id){
   S = Object.assign(clone(DEFAULTS), clone(data));
   currentId = id; dirty = false;
   openKey = keyOf(S.name);
+  syncWithTemplate();
   fillFields(); persistDraft(); updateSaveState(); renderPanel(); closePanel();
   window.scrollTo({top:0});
 }
@@ -992,11 +1024,34 @@ $("delBtn").addEventListener("click", async ()=>{
 });
 
 /* ---------- Descargar ---------- */
-$("printBtn").addEventListener("click",()=>{
-  const prev = document.title;
+/* Impresión en una sola página A4: se mide el reporte y se escala para que quepa */
+const PRINT_W = 1100;                 // ancho de maquetación del reporte impreso (px)
+const PAGE_W = 733, PAGE_H = 1058;    // área útil de A4 con márgenes de 8 mm (px a 96 ppp)
+let printTitle = null;
+function preparePrint(){
+  if (document.documentElement.classList.contains("pm")) return;
+  document.documentElement.classList.add("pm");
+  document.body.style.zoom = "";
+  const nt = $("f-notes"); nt.style.height = "auto"; nt.style.height = nt.scrollHeight + "px";
+  const el = $("view-collab");
+  const h = el.scrollHeight;
+  const z = Math.min(PAGE_W / PRINT_W, (PAGE_H / h)) * 0.98;
+  document.body.style.zoom = z.toFixed(3);
+  printTitle = document.title;
   document.title = `Reporte CAPA - ${S.name || "colaborador"}`;
-  window.print();
-  setTimeout(()=>document.title = prev, 500);
+}
+function endPrint(){
+  document.documentElement.classList.remove("pm");
+  document.body.style.zoom = "";
+  $("f-notes").style.height = "";
+  if (printTitle !== null){ document.title = printTitle; printTitle = null; }
+}
+window.addEventListener("beforeprint", preparePrint);
+window.addEventListener("afterprint", endPrint);
+$("printBtn").addEventListener("click",()=>{
+  if (VIEW !== "collab") setView("collab");
+  preparePrint();
+  setTimeout(()=>{ window.print(); setTimeout(endPrint, 300); }, 50);
 });
 
 /* ---------- Panel en móvil ---------- */
@@ -1017,10 +1072,32 @@ let CFG = {
   practical: DEFAULTS.practical.map(p=>p.n),
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f}))
 };
+
+/* Mantiene el reporte abierto alineado con la plantilla de Capacitación:
+   agrega lo nuevo, quita lo eliminado y conserva notas/estados de lo que ya existía. */
+function syncWithTemplate(){
+  if (!cfgLoaded || !S) return false;
+  const key = t => normTxt(t);
+  const oldA = new Map((S.areas||[]).map(a=>[key(a.n),a]));
+  const areas = CFG.areas.map(t=>{ const o = oldA.get(key(t.n)); return {n:t.n, s:t.s||t.n, v:o ? (Number(o.v)||0) : 0}; });
+  const oldP = new Map((S.practical||[]).map(p=>[key(p.n),p]));
+  const practical = CFG.practical.map(n=>{ const o = oldP.get(key(n)); return {n, a:o ? !!o.a : true}; });
+  const oldF = new Map((S.plan||[]).map(p=>[key(p.s),p]));
+  const plan = CFG.plan.map(t=>{ const o = oldF.get(key(t.s)); return o ? {s:t.s, r:o.r, f:o.f, e:o.e||0} : {s:t.s, r:t.r, f:t.f, e:0}; });
+  const next = JSON.stringify({areas, practical, plan});
+  if (next === JSON.stringify({areas:S.areas, practical:S.practical, plan:S.plan})) return false;
+  S.areas = areas; S.practical = practical; S.plan = plan;
+  dirty = true;
+  try { persistDraft(); updateSaveState(); } catch(e){}
+  return true;
+}
+let cfgLoaded = false;
 function applyCfg(c){
   CFG = Object.assign({}, CFG, clone(c));
   PASS = Number(CFG.pass) || 80;
+  cfgLoaded = true;
   fillClinicOptions();
+  syncWithTemplate();
   renderAll();
   refreshViews(true);
 }
