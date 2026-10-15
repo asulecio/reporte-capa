@@ -1157,7 +1157,7 @@ function PHONE_TEMPLATE(id, name, areas){ return { id, name, role:name, noFinal:
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
 const SEED_TEMPLATES = () => [
   PHONE_TEMPLATE("atcr", "Asesor Telefónico CR", [["Conceptos generales","Conceptos"],["SAM Citas","SAM Citas"],["VivoLife","VivoLife"]]),
-  PHONE_TEMPLATE("atfar", "Asesor Telefónico Farmacia", [["Conceptos generales","Conceptos"],["SAM Citas","SAM Citas"],["VivoLife","VivoLife"],["BlueMeds","BlueMeds"],["Cotizador","Cotizador"]])
+  PHONE_TEMPLATE("atfar", "Asesor Telefónico Farmacia", [["Conceptos generales","Conceptos"],["SAM Citas","SAM Citas"],["VivoLife","VivoLife"],["BlueMeds","BlueMeds"]])
 ];
 /* Migra la configuración antigua (una sola plantilla) al formato con varias plantillas */
 function normalizeCfg(c){
@@ -1176,6 +1176,8 @@ function normalizeCfg(c){
   /* Agrega una sola vez las plantillas nuevas (si luego se eliminan, no vuelven a aparecer) */
   if (!Array.isArray(c.seeded)) c.seeded = ["atp","cc"];
   SEED_TEMPLATES().forEach(t=>{ if (!c.seeded.includes(t.id)){ if (!c.templates.some(x=>x.id===t.id)) c.templates.push(t); c.seeded.push(t.id); } });
+  /* Farmacia ya no evalúa Cotizador: se quita si la plantilla seguía con las áreas originales */
+  c.templates.forEach(t=>{ if (t.id==="atfar" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")==="conceptos generales|sam citas|vivolife|bluemeds|cotizador") t.areas = t.areas.filter(a=>normTxt(a.n)!=="cotizador"); });
   delete c.areas; delete c.practical; delete c.plan;
   return c;
 }
