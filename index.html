@@ -1585,6 +1585,11 @@ function unlock(user){
   if (sess && AUTH_USERS.some(u=>u.u===sess)) { unlock(sess); return; }
   setTimeout(()=>$("loginUser").focus(), 50);
 })();
+$("loginPass").addEventListener("keyup", e=>{
+  const caps = e.getModifierState && e.getModifierState("CapsLock");
+  if (caps) $("loginErr").textContent = "Bloq Mayús está activado.";
+  else if ($("loginErr").textContent === "Bloq Mayús está activado.") $("loginErr").textContent = "";
+});
 $("pwEye").addEventListener("click",()=>{
   const i = $("loginPass"), show = i.type==="password"; i.type = show ? "text" : "password";
   $("pwEye").textContent = show ? "Ocultar" : "Ver"; $("pwEye").setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
@@ -1597,18 +1602,18 @@ $("loginForm").addEventListener("submit", async e=>{
     const min = Math.ceil((lock.until - Date.now())/60000);
     err.textContent = `Demasiados intentos. Intenta de nuevo en ${min} min.`; return;
   }
-  const user = $("loginUser").value.trim().toLowerCase(), pw = $("loginPass").value;
+  const user = $("loginUser").value.trim().toLowerCase(), pw = $("loginPass").value.trim();
   btn.disabled = true; err.textContent = "";
   let ok = false;
+  const rec = AUTH_USERS.find(u=>u.u===user);
   try {
-    const rec = AUTH_USERS.find(u=>u.u===user);
     if (rec) ok = (await pbkdf2(pw, rec.salt)) === rec.h;
   } catch(ex){ err.textContent = "Este navegador no permite verificar la contraseña."; btn.disabled = false; return; }
   btn.disabled = false;
   if (ok){ writeLock({fails:0, until:0}); $("loginPass").value = ""; unlock(user); return; }
   lock.fails = (lock.fails||0) + 1;
   if (lock.fails >= 5){ lock.until = Date.now() + 5*60000; lock.fails = 0; err.textContent = "Demasiados intentos. Intenta de nuevo en 5 min."; }
-  else err.textContent = `Usuario o contraseña incorrectos (${5-lock.fails} intentos restantes).`;
+  else err.textContent = (rec ? "Contraseña incorrecta. Revisa mayúsculas y minúsculas" : "Ese usuario no existe") + ` (${5-lock.fails} intentos restantes).`;
   writeLock(lock);
   $("loginPass").select();
 });
