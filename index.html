@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="locked">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -408,9 +408,51 @@ html.pm .summary{margin:8px 0}
 .brand-tile .logo-full{width:100%;max-width:172px;height:auto;display:block}
 .brand-tile .logo-mark{display:none;width:32px;height:auto}
 @media (max-width:1500px){ .brand-tile{padding:7px;border-radius:10px;width:auto} .brand-tile .logo-full{display:none} .brand-tile .logo-mark{display:block} }
+
+/* ---------- Acceso ---------- */
+html.locked body{overflow:hidden}
+html.locked .app{visibility:hidden}
+.login{display:none}
+html.locked .login{display:grid;position:fixed;inset:0;z-index:100;place-items:center;padding:20px;background:linear-gradient(160deg,#0b2e5b,#123f79 60%,#1f63bf)}
+.login-card{width:100%;max-width:380px;background:#fff;color:#12294d;border-radius:16px;padding:30px 28px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:grid;gap:14px}
+.login-logo{width:190px;height:auto;margin:0 auto 4px}
+.login-card h1{font-size:19px;margin:0;text-align:center}
+.login-sub{margin:-8px 0 4px;text-align:center;color:#6b7a90;font-size:13px}
+.login-field{display:grid;gap:6px;font-size:13px;font-weight:600}
+.login-field input{width:100%;border:1px solid #d6dfeb;border-radius:9px;padding:11px 12px;font-size:15px;background:#f6f9fd;color:#12294d;outline:none}
+.login-field input:focus{border-color:#4d8fe8;background:#fff}
+.pw-wrap{position:relative;display:block}
+.pw-wrap input{padding-right:70px}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#1f63bf;font-size:12px;font-weight:600;cursor:pointer;padding:6px 8px}
+.login-err{min-height:18px;color:#c2503f;font-size:13px;text-align:center}
+.login-btn{justify-content:center;width:100%;padding:12px;font-size:15px}
+.login-btn:disabled{opacity:.6}
+.nav .logout{margin-top:14px;color:#9fb6d6}
+.nav .logout:hover{background:rgba(255,255,255,.08);color:#fff}
+@media print{.login{display:none!important}}
+/* Plantillas */
+.tpl-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tpl-tab{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.tpl-tab.on{background:#1f63bf;border-color:#1f63bf;color:#fff}
+.tpl-tab.new{border-style:dashed;color:var(--muted);font-weight:500}
+.tpl-meta{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.tpl-badge{display:inline-block;font-size:10.5px;font-weight:700;border-radius:8px;padding:1px 6px;background:var(--head);color:#1f5aa3;margin-left:4px;vertical-align:middle}
+@media (max-width:700px){.tpl-meta{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div class="login" id="login" role="dialog" aria-labelledby="loginTitle">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <img class="logo-full login-logo" alt="Blue Medical">
+    <h1 id="loginTitle">Reporte Final de Capacitación</h1>
+    <p class="login-sub">Ingresa con tu usuario para continuar</p>
+    <label class="login-field"><span>Usuario</span><input id="loginUser" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="login-field"><span>Contraseña</span>
+      <span class="pw-wrap"><input id="loginPass" name="password" type="password" autocomplete="current-password" required><button type="button" class="pw-eye" id="pwEye" aria-label="Mostrar contraseña">Ver</button></span></label>
+    <div class="login-err" id="loginErr" role="alert"></div>
+    <button class="btn login-btn" id="loginBtn" type="submit">Entrar</button>
+  </form>
+</div>
 <div class="app">
 
 <aside class="side">
@@ -421,6 +463,7 @@ html.pm .summary{margin:8px 0}
     <button data-ic="book" data-view="training">Capacitación</button>
     <button data-ic="chart" data-view="reports">Reportes</button>
     <button data-ic="gear" data-view="settings">Configuración</button>
+    <button data-ic="logout" id="logoutBtn" class="logout">Cerrar sesión</button>
   </nav>
   <svg class="leaf" viewBox="0 0 200 300" aria-hidden="true"><path fill="#fff" d="M100 0C160 60 190 140 150 220S40 300 20 260 40 60 100 0Z"/><path fill="#fff" d="M170 120c30 40 30 110-20 150s-70 10-60-30 50-90 80-120Z"/></svg>
   <div class="side-foot">Personas<br>Salud<br>Bienestar</div>
@@ -476,6 +519,9 @@ html.pm .summary{margin:8px 0}
       <input class="pname" id="f-name" placeholder="Nombre del colaborador" aria-label="Nombre del colaborador">
       <div class="prole"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><input id="f-role" aria-label="Puesto"></div>
       <div class="fields">
+        <label class="field" for="f-tpl"><span>Plantilla de reporte</span>
+          <div class="val"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/></svg>
+            <select id="f-tpl"></select></div></label>
         <label class="field" for="f-clinic"><span>Clínica asignada</span>
           <div class="val"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>
             <select id="f-clinic"></select></div></label>
@@ -596,6 +642,7 @@ const ICONS = {
   users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 2 5 5"/>',
   book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"/><path d="M4 19V5M9 8h6"/>',
   chart:'<path d="M6 20V11M12 20V5M18 20v-6"/>',
+  logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/>',
   gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
 };
 document.querySelectorAll('.nav button').forEach(b=>{
@@ -927,7 +974,7 @@ function renderPanel(){
     ${open ? `<div class="hist">
       ${g.all.map(h=>{ const c = compute(h); return `
         <button class="hitem ${h.id===currentId?"cur":""}" data-id="${esc(h.id)}">
-          <b>${esc(h.period||"Sin período")}</b>
+          <b>${esc(h.period||"Sin período")}${CFG.templates.length>1 ? `<span class="tpl-badge">${esc(tplName(h.template))}</span>` : ""}</b>
           <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${getFinal(h)}%</span>
           <small>Guardado ${fmtDate(h.updatedAt)}</small>
         </button>`; }).join("")}
@@ -975,9 +1022,12 @@ function newReport(base){
   } else {
     S.name = ""; S.photo = ""; S.period = "";
   }
-  S.areas = CFG.areas.map(a=>({n:a.n, s:a.s, v:0}));
-  S.practical = CFG.practical.map(n=>({n, a:true}));
-  S.plan = CFG.plan.map(p=>({s:p.s, r:p.r, f:p.f, e:0}));
+  const tid = base ? (base.template || "atp") : (lastTpl() || CFG.templates[0].id);
+  const T = getTpl(tid); S.template = T.id;
+  if (!base && T.role) S.role = T.role;
+  S.areas = T.areas.map(a=>({n:a.n, s:a.s, v:0}));
+  S.practical = T.practical.map(n=>({n, a:true}));
+  S.plan = T.plan.map(p=>({s:p.s, r:p.r, f:p.f, e:0}));
   S.strengths = []; S.opportunities = []; S.notes = "";
   S.final = 0; S.att = 100;
   if (!base) S.trainer = CFG.trainer;
@@ -1070,22 +1120,47 @@ let CFG = {
   pass: 80,
   trainer: "CAPA",
   clinics: ["Majadas","Américas","Portales","Vista Hermosa","Condado Concepción","El Frutal","Petápolis"],
-  areas: DEFAULTS.areas.map(a=>({n:a.n, s:a.s})),
-  practical: DEFAULTS.practical.map(p=>p.n),
-  plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f}))
+  templates: [
+    { id:"atp", name:"ATP", role:"Asesor Multiskills",
+      areas: DEFAULTS.areas.map(a=>({n:a.n, s:a.s})),
+      practical: DEFAULTS.practical.map(p=>p.n),
+      plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) },
+    CC_TEMPLATE()
+  ]
 };
+function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center",
+  areas:[{n:"Protocolo de atención telefónica",s:"Protocolo"},{n:"Agendamiento de citas (SAM)",s:"Citas"},{n:"Seguros y coberturas",s:"Seguros"},{n:"Manejo de objeciones",s:"Objeciones"},{n:"Sistemas y herramientas",s:"Sistemas"},{n:"Evaluación final",s:"Final"}],
+  practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
+  plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
+/* Migra la configuración antigua (una sola plantilla) al formato con varias plantillas */
+function normalizeCfg(c){
+  c = clone(c||{});
+  if (!Array.isArray(c.templates) || !c.templates.length){
+    const atp = { id:"atp", name:"ATP", role:"Asesor Multiskills",
+      areas: c.areas || DEFAULTS.areas.map(a=>({n:a.n, s:a.s})),
+      practical: c.practical || DEFAULTS.practical.map(p=>p.n),
+      plan: c.plan || DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) };
+    c.templates = [atp, CC_TEMPLATE()];
+  }
+  delete c.areas; delete c.practical; delete c.plan;
+  return c;
+}
+function getTpl(id){ return CFG.templates.find(t=>t.id===id) || CFG.templates[0]; }
+function tplName(id){ const t = CFG.templates.find(t=>t.id===(id||"atp")); return t ? t.name : ""; }
 
 /* Mantiene el reporte abierto alineado con la plantilla de Capacitación:
    agrega lo nuevo, quita lo eliminado y conserva notas/estados de lo que ya existía. */
 function syncWithTemplate(){
   if (!cfgLoaded || !S) return false;
+  if (!S.template) S.template = "atp";
+  const T = getTpl(S.template);
   const key = t => normTxt(t);
   const oldA = new Map((S.areas||[]).map(a=>[key(a.n),a]));
-  const areas = CFG.areas.map(t=>{ const o = oldA.get(key(t.n)); return {n:t.n, s:t.s||t.n, v:o ? (Number(o.v)||0) : 0}; });
+  const areas = T.areas.map(t=>{ const o = oldA.get(key(t.n)); return {n:t.n, s:t.s||t.n, v:o ? (Number(o.v)||0) : 0}; });
   const oldP = new Map((S.practical||[]).map(p=>[key(p.n),p]));
-  const practical = CFG.practical.map(n=>{ const o = oldP.get(key(n)); return {n, a:o ? !!o.a : true}; });
+  const practical = T.practical.map(n=>{ const o = oldP.get(key(n)); return {n, a:o ? !!o.a : true}; });
   const oldF = new Map((S.plan||[]).map(p=>[key(p.s),p]));
-  const plan = CFG.plan.map(t=>{ const o = oldF.get(key(t.s)); return o ? {s:t.s, r:o.r, f:o.f, e:o.e||0} : {s:t.s, r:t.r, f:t.f, e:0}; });
+  const plan = T.plan.map(t=>{ const o = oldF.get(key(t.s)); return o ? {s:t.s, r:o.r, f:o.f, e:o.e||0} : {s:t.s, r:t.r, f:t.f, e:0}; });
   const next = JSON.stringify({areas, practical, plan});
   if (next === JSON.stringify({areas:S.areas, practical:S.practical, plan:S.plan})) return false;
   S.areas = areas; S.practical = practical; S.plan = plan;
@@ -1095,7 +1170,7 @@ function syncWithTemplate(){
 }
 let cfgLoaded = false;
 function applyCfg(c){
-  CFG = Object.assign({}, CFG, clone(c));
+  CFG = Object.assign({}, CFG, normalizeCfg(c));
   PASS = Number(CFG.pass) || 80;
   cfgLoaded = true;
   fillClinicOptions();
@@ -1103,7 +1178,22 @@ function applyCfg(c){
   renderAll();
   refreshViews(true);
 }
+const LAST_TPL_KEY = "bm-capa-ultima-plantilla";
+function lastTpl(){ try { const v = localStorage.getItem(LAST_TPL_KEY); return CFG.templates.some(t=>t.id===v) ? v : null; } catch(e){ return null; } }
+function fillTplOptions(){
+  const sel = $("f-tpl"); if (!sel) return;
+  if (!S.template) S.template = "atp";
+  sel.innerHTML = CFG.templates.map(t=>`<option value="${esc(t.id)}" ${t.id===S.template?"selected":""}>${esc(t.name)}</option>`).join("");
+}
+$("f-tpl").addEventListener("change", e=>{
+  const prev = getTpl(S.template), next = getTpl(e.target.value);
+  S.template = next.id;
+  try { localStorage.setItem(LAST_TPL_KEY, next.id); } catch(_){}
+  if (next.role && (!S.role || S.role === prev.role)) { S.role = next.role; $("f-role").value = S.role; }
+  syncWithTemplate(); renderAll(); save();
+});
 function fillClinicOptions(){
+  fillTplOptions();
   const sel = $("f-clinic"); if (!sel) return;
   const list = [...CFG.clinics];
   if (S.clinic && !list.includes(S.clinic)) list.push(S.clinic);
@@ -1140,6 +1230,7 @@ function setView(v, fromHash){
   window.scrollTo({top:0});
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{
+  if (!b.dataset.view) return;
   if (b.dataset.view==="collab" && VIEW==="collab" && matchMedia("(max-width:900px)").matches) { $("panelBtn").click(); return; }
   setView(b.dataset.view);
 }));
@@ -1169,12 +1260,16 @@ function goReport(id){ setView("collab"); openReport(id); }
 /* =========================================================
    Inicio
    ========================================================= */
+let hTpl = "";
 function renderHome(){
   const el = $("view-home");
-  const latest = latestByPerson();
+  if (hTpl && !CFG.templates.some(t=>t.id===hTpl)) hTpl = "";
+  const latest = latestByPerson().filter(r=>!hTpl || (r.template||"atp")===hTpl);
   const head = `<div class="vhead"><div><h1>Inicio</h1><div class="sub">Resumen general de los procesos CAPA</div></div>
-    <button class="btn" data-act="new"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo reporte</button></div>`;
-  if (!reports.length){
+    <div class="actions"><select id="hTpl" class="tin" style="width:auto" aria-label="Plantilla"><option value="">Todas las plantillas</option>${CFG.templates.map(t=>`<option value="${esc(t.id)}" ${t.id===hTpl?"selected":""}>${esc(t.name)}</option>`).join("")}</select>
+    <button class="btn" data-act="new"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo reporte</button></div></div>`;
+  if (!reports.length || !latest.length){
+    if (reports.length){ el.innerHTML = head + `<div class="card pad empty" style="padding:40px 20px">No hay reportes guardados con esta plantilla.</div>`; return; }
     el.innerHTML = head + `<div class="card pad empty" style="padding:48px 20px">Aún no hay reportes guardados.<br>Crea el primer reporte de capacitación para ver aquí el resumen del equipo.<br><br>
       <button class="btn" data-act="new">Crear el primer reporte</button></div>`;
     return;
@@ -1197,7 +1292,7 @@ function renderHome(){
   const clinics = [...clin.entries()].sort((a,b)=>b[1].n-a[1].n);
 
   const need = latest.filter(r=>!compute(r).ok);
-  const recent = [...reports].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);
+  const recent = [...reports].filter(r=>!hTpl || (r.template||"atp")===hTpl).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);
 
   el.innerHTML = head + `
   <div class="grid stats">
@@ -1231,6 +1326,7 @@ function renderHome(){
     </section>
   </div>`;
 }
+$("view-home").addEventListener("change",e=>{ if (e.target.id==="hTpl"){ hTpl = e.target.value; renderHome(); } });
 $("view-home").addEventListener("click",e=>{
   const o = e.target.closest("[data-open]"); if (o){ goReport(o.dataset.open); return; }
   if (e.target.closest('[data-act="new"]')) newReport(null);
@@ -1239,7 +1335,7 @@ $("view-home").addEventListener("click",e=>{
 /* =========================================================
    Reportes
    ========================================================= */
-let rq = "", rClinic = "", rStatus = "";
+let rq = "", rClinic = "", rStatus = "", rTpl = "";
 function renderReports(){
   const el = $("view-reports");
   if (!el.dataset.ready){
@@ -1248,6 +1344,7 @@ function renderReports(){
       <div class="toolbar">
         <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" type="search" placeholder="Buscar colaborador, clínica o período"></label>
         <select id="rClinic" aria-label="Clínica"></select>
+        <select id="rTpl" aria-label="Plantilla"></select>
         <select id="rStatus" aria-label="Resultado"><option value="">Todos los resultados</option><option value="ok">Aprobados</option><option value="no">Requieren refuerzo</option></select>
       </div>
       <section class="card pad"><div class="tbl-wrap" id="rTable"></div><div class="msg" id="rMsg" style="margin-top:8px"></div></section>`;
@@ -1255,18 +1352,20 @@ function renderReports(){
     $("rq").addEventListener("input",e=>{ rq = e.target.value; renderReports(); });
     $("rClinic").addEventListener("change",e=>{ rClinic = e.target.value; renderReports(); });
     $("rStatus").addEventListener("change",e=>{ rStatus = e.target.value; renderReports(); });
+    $("rTpl").addEventListener("change",e=>{ rTpl = e.target.value; renderReports(); });
     $("rTable").addEventListener("click",e=>{ const o = e.target.closest("[data-open]"); if (o) goReport(o.dataset.open); });
     $("csvBtn").addEventListener("click",exportCsv);
   }
   const clinics = [...new Set(reports.map(r=>r.clinic).filter(Boolean))].sort();
   $("rClinic").innerHTML = `<option value="">Todas las clínicas</option>` + clinics.map(c=>`<option ${c===rClinic?"selected":""}>${esc(c)}</option>`).join("");
+  $("rTpl").innerHTML = `<option value="">Todas las plantillas</option>` + CFG.templates.map(t=>`<option value="${esc(t.id)}" ${t.id===rTpl?"selected":""}>${esc(t.name)}</option>`).join("");
   const rows = filteredReports();
   $("rTable").innerHTML = !reports.length
     ? `<div class="empty">Aún no hay reportes guardados.</div>`
     : !rows.length ? `<div class="empty">Ningún reporte coincide con los filtros.</div>`
-    : `<table><thead><tr><th>Colaborador</th><th>Clínica</th><th>Período</th><th class="center">Final</th><th class="center">Promedio</th><th class="center">Asistencia</th><th>Resultado</th><th>Guardado</th></tr></thead>
+    : `<table><thead><tr><th>Colaborador</th><th>Plantilla</th><th>Clínica</th><th>Período</th><th class="center">Final</th><th class="center">Promedio</th><th class="center">Asistencia</th><th>Resultado</th><th>Guardado</th></tr></thead>
       <tbody>${rows.map(r=>{ const c = compute(r); return `<tr class="rowlink" data-open="${esc(r.id)}">
-        <td><b style="font-weight:600">${esc(r.name)}</b></td><td>${esc(r.clinic||"")}</td><td>${esc(r.period||"")}</td>
+        <td><b style="font-weight:600">${esc(r.name)}</b></td><td>${esc(tplName(r.template))}</td><td>${esc(r.clinic||"")}</td><td>${esc(r.period||"")}</td>
         <td class="center">${getFinal(r)}%</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
         <td><span class="pill inline ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"}</span></td><td class="small">${fmtDate(r.updatedAt)}</td></tr>`; }).join("")}</tbody></table>`;
   $("rMsg").textContent = reports.length ? `${rows.length} de ${reports.length} reportes` : "";
@@ -1277,6 +1376,7 @@ function filteredReports(){
     const ok = compute(r).ok;
     if (q && !(keyOf(r.name).includes(q)||keyOf(r.clinic).includes(q)||keyOf(r.period).includes(q))) return false;
     if (rClinic && r.clinic!==rClinic) return false;
+    if (rTpl && (r.template||"atp")!==rTpl) return false;
     if (rStatus==="ok" && !ok) return false;
     if (rStatus==="no" && ok) return false;
     return true;
@@ -1287,8 +1387,8 @@ async function exportCsv(){
   if (!rows.length){ $("rMsg").textContent = "No hay reportes para exportar con estos filtros."; return; }
   const areaNames = [...new Set(rows.flatMap(r=>(r.areas||[]).map(a=>a.n)))];
   const cell = v => `"${String(v??"").replace(/"/g,'""')}"`;
-  const head = ["Colaborador","Puesto","Clínica","Fecha de ingreso","Período CAPA","Capacitador","Evaluación final","Promedio","Asistencia","Resultado",...areaNames,"Observaciones","Guardado"];
-  const lines = rows.map(r=>{ const c = compute(r); return [r.name,r.role,r.clinic,r.date,r.period,r.trainer,getFinal(r),c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
+  const head = ["Colaborador","Plantilla","Puesto","Clínica","Fecha de ingreso","Período CAPA","Capacitador","Evaluación final","Promedio","Asistencia","Resultado",...areaNames,"Observaciones","Guardado"];
+  const lines = rows.map(r=>{ const c = compute(r); return [r.name,tplName(r.template),r.role,r.clinic,r.date,r.period,r.trainer,getFinal(r),c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
     ...areaNames.map(n=>{ const a=(r.areas||[]).find(x=>x.n===n); return a?a.v:""; }), r.notes, fmtDate(r.updatedAt)].map(cell).join(","); });
   const data = "\ufeff" + [head.map(cell).join(","), ...lines].join("\r\n");
   const filename = `reportes-capa-${new Date().toISOString().slice(0,10)}.csv`;
@@ -1309,28 +1409,39 @@ async function exportCsv(){
    Capacitación (plantilla para reportes nuevos)
    ========================================================= */
 let draft = clone(CFG), cfgDirty = false;
+let tIdx = 0;
 function renderTraining(){
   const el = $("view-training");
-  el.innerHTML = `<div class="vhead"><div><h1>Capacitación</h1><div class="sub">Plantilla que se usa al crear un reporte nuevo</div></div>
-    <div class="actions"><span class="msg" id="tMsg"></span><button class="btn" data-save>Guardar plantilla</button></div></div>
-  <div class="grid form-grid">
+  if (tIdx >= draft.templates.length) tIdx = 0;
+  const T = draft.templates[tIdx];
+  el.innerHTML = `<div class="vhead"><div><h1>Capacitación</h1><div class="sub">Plantillas de reporte: cada una define sus áreas, aspectos prácticos y seguimiento</div></div>
+    <div class="actions"><span class="msg" id="tMsg"></span><button class="btn" data-save>Guardar plantillas</button></div></div>
+  <div class="tpl-tabs">${draft.templates.map((t,i)=>`<button class="tpl-tab ${i===tIdx?"on":""}" data-tpl="${i}">${esc(t.name||"Sin nombre")}</button>`).join("")}<button class="tpl-tab new" data-tplnew>+ Nueva plantilla</button></div>
+  <section class="card pad">
+    <div class="tpl-meta">
+      <div><label class="flabel" for="tName">Nombre de la plantilla</label><input class="tin" id="tName" data-tf="name" value="${esc(T.name)}"></div>
+      <div><label class="flabel" for="tRole">Puesto por defecto</label><input class="tin" id="tRole" data-tf="role" value="${esc(T.role||"")}" placeholder="Ej. Asesor Multiskills"></div>
+      ${draft.templates.length>1 ? `<button class="btn danger" data-tpldel>Eliminar plantilla</button>` : ""}
+    </div>
+  </section>
+  <div class="grid form-grid" style="margin-top:14px">
     <section class="card pad">
       <h3><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>Áreas evaluadas</h3>
-      <div class="hint2">La etiqueta corta es la que aparece debajo de cada barra de la gráfica.</div>
-      ${draft.areas.map((a,i)=>`<div class="frow"><input class="tin" data-k="areas" data-i="${i}" data-f="n" value="${esc(a.n)}" aria-label="Área"><input class="tin short" data-k="areas" data-i="${i}" data-f="s" value="${esc(a.s)}" placeholder="Etiqueta corta" aria-label="Etiqueta corta"><button class="xbtn" data-del="areas" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      <div class="hint2">La etiqueta corta es la que aparece debajo de cada barra de la gráfica. Si agregas un área llamada «Evaluación final», su nota se usa como evaluación final.</div>
+      ${T.areas.map((a,i)=>`<div class="frow"><input class="tin" data-k="areas" data-i="${i}" data-f="n" value="${esc(a.n)}" aria-label="Área"><input class="tin short" data-k="areas" data-i="${i}" data-f="s" value="${esc(a.s)}" placeholder="Etiqueta corta" aria-label="Etiqueta corta"><button class="xbtn" data-del="areas" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
       <button class="add" data-addk="areas">+ Agregar área</button>
     </section>
     <section class="card pad">
       <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Aspectos del desempeño práctico</h3>
       <div class="hint2">Cada aspecto se marca como autónomo o con acompañamiento en el reporte.</div>
-      ${draft.practical.map((n,i)=>`<div class="frow one"><input class="tin" data-k="practical" data-i="${i}" value="${esc(n)}" aria-label="Aspecto"><button class="xbtn" data-del="practical" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      ${T.practical.map((n,i)=>`<div class="frow one"><input class="tin" data-k="practical" data-i="${i}" value="${esc(n)}" aria-label="Aspecto"><button class="xbtn" data-del="practical" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
       <button class="add" data-addk="practical">+ Agregar aspecto</button>
     </section>
   </div>
   <section class="card pad">
     <h3><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan de seguimiento en clínica</h3>
     <div class="frow plan small" style="margin-bottom:4px"><span>Seguimiento</span><span>Responsable</span><span>Fecha</span><span></span></div>
-    ${draft.plan.map((p,i)=>`<div class="frow plan"><input class="tin" data-k="plan" data-i="${i}" data-f="s" value="${esc(p.s)}" aria-label="Seguimiento"><input class="tin" data-k="plan" data-i="${i}" data-f="r" value="${esc(p.r)}" aria-label="Responsable"><input class="tin" data-k="plan" data-i="${i}" data-f="f" value="${esc(p.f)}" aria-label="Fecha"><button class="xbtn" data-del="plan" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+    ${T.plan.map((p,i)=>`<div class="frow plan"><input class="tin" data-k="plan" data-i="${i}" data-f="s" value="${esc(p.s)}" aria-label="Seguimiento"><input class="tin" data-k="plan" data-i="${i}" data-f="r" value="${esc(p.r)}" aria-label="Responsable"><input class="tin" data-k="plan" data-i="${i}" data-f="f" value="${esc(p.f)}" aria-label="Fecha"><button class="xbtn" data-del="plan" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
     <button class="add" data-addk="plan">+ Agregar seguimiento</button>
   </section>`;
 }
@@ -1373,9 +1484,10 @@ function renderSettings(){
   const el = $(id);
   el.addEventListener("input",e=>{
     const t = e.target;
-    if (t.dataset.single){ draft[t.dataset.single] = t.dataset.single==="pass" ? clampPass(t.value) : t.value; }
+    if (t.dataset.tf){ draft.templates[tIdx][t.dataset.tf] = t.value; }
+    else if (t.dataset.single){ draft[t.dataset.single] = t.dataset.single==="pass" ? clampPass(t.value) : t.value; }
     else if (t.dataset.k){
-      const arr = draft[t.dataset.k], i = +t.dataset.i;
+      const arr = cfgArr(t.dataset.k), i = +t.dataset.i;
       if (t.dataset.f) arr[i][t.dataset.f] = t.value; else arr[i] = t.value;
     } else return;
     cfgDirty = true; $("tMsg").textContent = "Cambios sin guardar";
@@ -1385,11 +1497,26 @@ function renderSettings(){
     if (th){ THEME = th.dataset.themeSet; try{ localStorage.setItem(THEME_KEY,THEME);}catch(_){} applyTheme(THEME);
       el.querySelectorAll("[data-theme-set]").forEach(b=>b.classList.toggle("on",b===th)); return; }
     const del = e.target.closest("[data-del]");
-    if (del){ draft[del.dataset.del].splice(+del.dataset.i,1); cfgDirty = true; rerenderCfg(); return; }
+    if (del){ cfgArr(del.dataset.del).splice(+del.dataset.i,1); cfgDirty = true; rerenderCfg(); return; }
+    const tb = e.target.closest("[data-tpl]");
+    if (tb){ tIdx = +tb.dataset.tpl; renderTraining(); if (cfgDirty) $("tMsg").textContent = "Cambios sin guardar"; return; }
+    if (e.target.closest("[data-tplnew]")){
+      const cur = draft.templates[tIdx];
+      draft.templates.push({ id:"t"+Date.now().toString(36), name:"Nueva plantilla", role:"", areas:[{n:"Evaluación final", s:"Final"}], practical:[], plan: clone(cur.plan) });
+      tIdx = draft.templates.length-1; cfgDirty = true; rerenderCfg();
+      const n = $("tName"); if (n){ n.focus(); n.select(); }
+      return;
+    }
+    if (e.target.closest("[data-tpldel]")){
+      const T = draft.templates[tIdx], used = reports.filter(r=>(r.template||"atp")===T.id).length;
+      const other = draft.templates.find((x,i)=>i!==tIdx);
+      if (!confirm(`¿Eliminar la plantilla «${T.name}»?` + (used ? ` Hay ${used} reporte(s) que la usan; pasarán a la plantilla «${other.name}» al abrirlos.` : ""))) return;
+      draft.templates.splice(tIdx,1); tIdx = 0; cfgDirty = true; rerenderCfg(); return;
+    }
     const add = e.target.closest("[data-addk]");
     if (add){
       const k = add.dataset.addk;
-      draft[k].push(k==="areas"?{n:"Nueva área",s:"Nueva"} : k==="plan"?{s:"Nuevo seguimiento",r:"CAPA",f:""} : k==="clinics"?"Nueva clínica":"Nuevo aspecto");
+      cfgArr(k).push(k==="areas"?{n:"Nueva área",s:"Nueva"} : k==="plan"?{s:"Nuevo seguimiento",r:"CAPA",f:""} : k==="clinics"?"Nueva clínica":"Nuevo aspecto");
       cfgDirty = true; rerenderCfg();
       const ins = el.querySelectorAll(`[data-k="${k}"]`); const last = [...ins].filter(x=>!x.dataset.f||x.dataset.f!=="s"||k!=="areas").pop();
       if (last){ last.focus(); last.select(); }
@@ -1397,12 +1524,14 @@ function renderSettings(){
     }
     if (e.target.closest("[data-save]")){
       const clean = clone(draft);
-      clean.areas = clean.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()}));
-      clean.practical = clean.practical.map(x=>x.trim()).filter(Boolean);
-      clean.plan = clean.plan.filter(p=>p.s.trim());
+      clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(),
+        areas: t.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()})),
+        practical: t.practical.map(x=>x.trim()).filter(Boolean),
+        plan: t.plan.filter(p=>p.s.trim()) }));
+      const emptyT = clean.templates.find(t=>!t.areas.length);
       clean.clinics = [...new Set(clean.clinics.map(x=>x.trim()).filter(Boolean))];
       clean.pass = clampPass(clean.pass);
-      if (!clean.areas.length){ $("tMsg").textContent = "Agrega al menos un área evaluada."; return; }
+      if (emptyT){ $("tMsg").textContent = `La plantilla «${emptyT.name}» necesita al menos un área evaluada.`; return; }
       if (!clean.clinics.length){ $("tMsg").textContent = "Agrega al menos una clínica."; return; }
       const btn = e.target.closest("[data-save]"); btn.disabled = true;
       try {
@@ -1416,6 +1545,7 @@ function renderSettings(){
     }
   });
 });
+function cfgArr(k){ return ["areas","practical","plan"].includes(k) ? draft.templates[tIdx][k] : draft[k]; }
 function clampPass(v){ return Math.min(100, Math.max(0, Math.round(Number(v)||0))); }
 function rerenderCfg(){ if (VIEW==="training") renderTraining(); else if (VIEW==="settings") renderSettings(); if (cfgDirty) $("tMsg").textContent = "Cambios sin guardar"; }
 
@@ -1432,6 +1562,63 @@ if (S.name) openKey = keyOf(S.name);
 updateSaveState();
 renderPanel();
 initStore();
+
+/* =========================================================
+   Acceso con usuario y contraseña (protección básica)
+   ========================================================= */
+const AUTH_USERS = [{"u": "asulecio", "salt": "9cefa5c92f5b97f52ef752a446fc8f73", "h": "9646e7d4c0e80a6b0da304af385c118750989cff2b4d1ff2f1307028ba981acc"}];
+const AUTH_ITER = 150000, AUTH_KEY = "bm-capa-sesion", LOCK_KEY = "bm-capa-bloqueo";
+const hex = buf => [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+async function pbkdf2(pw, saltHex){
+  const salt = new Uint8Array(saltHex.match(/../g).map(x=>parseInt(x,16)));
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  return hex(await crypto.subtle.deriveBits({name:"PBKDF2", salt, iterations:AUTH_ITER, hash:"SHA-256"}, key, 256));
+}
+function readLock(){ try { return JSON.parse(localStorage.getItem(LOCK_KEY)) || {fails:0, until:0}; } catch(e){ return {fails:0, until:0}; } }
+function writeLock(l){ try { localStorage.setItem(LOCK_KEY, JSON.stringify(l)); } catch(e){} }
+function unlock(user){
+  document.documentElement.classList.remove("locked");
+  try { sessionStorage.setItem(AUTH_KEY, user); } catch(e){}
+}
+(function initAuth(){
+  let sess = null; try { sess = sessionStorage.getItem(AUTH_KEY); } catch(e){}
+  if (sess && AUTH_USERS.some(u=>u.u===sess)) { unlock(sess); return; }
+  setTimeout(()=>$("loginUser").focus(), 50);
+})();
+$("pwEye").addEventListener("click",()=>{
+  const i = $("loginPass"), show = i.type==="password"; i.type = show ? "text" : "password";
+  $("pwEye").textContent = show ? "Ocultar" : "Ver"; $("pwEye").setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
+});
+$("loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const err = $("loginErr"), btn = $("loginBtn");
+  const lock = readLock();
+  if (lock.until > Date.now()){
+    const min = Math.ceil((lock.until - Date.now())/60000);
+    err.textContent = `Demasiados intentos. Intenta de nuevo en ${min} min.`; return;
+  }
+  const user = $("loginUser").value.trim().toLowerCase(), pw = $("loginPass").value;
+  btn.disabled = true; err.textContent = "";
+  let ok = false;
+  try {
+    const rec = AUTH_USERS.find(u=>u.u===user);
+    if (rec) ok = (await pbkdf2(pw, rec.salt)) === rec.h;
+  } catch(ex){ err.textContent = "Este navegador no permite verificar la contraseña."; btn.disabled = false; return; }
+  btn.disabled = false;
+  if (ok){ writeLock({fails:0, until:0}); $("loginPass").value = ""; unlock(user); return; }
+  lock.fails = (lock.fails||0) + 1;
+  if (lock.fails >= 5){ lock.until = Date.now() + 5*60000; lock.fails = 0; err.textContent = "Demasiados intentos. Intenta de nuevo en 5 min."; }
+  else err.textContent = `Usuario o contraseña incorrectos (${5-lock.fails} intentos restantes).`;
+  writeLock(lock);
+  $("loginPass").select();
+});
+$("logoutBtn").addEventListener("click",()=>{
+  if (dirty && !confirm("Tienes cambios sin guardar en el reporte. ¿Cerrar sesión de todos modos? Quedarán como borrador en este navegador.")) return;
+  try { persistDraft(); sessionStorage.removeItem(AUTH_KEY); } catch(e){}
+  document.documentElement.classList.add("locked");
+  $("loginUser").value = ""; $("loginPass").value = ""; $("loginErr").textContent = "";
+  setTimeout(()=>$("loginUser").focus(), 50);
+});
 </script>
 <style>@media print{[data-noprint]{display:none}}</style>
 </body>
