@@ -1129,7 +1129,7 @@ let CFG = {
   ]
 };
 function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center",
-  areas:[{n:"Protocolo de atención telefónica",s:"Protocolo"},{n:"Agendamiento de citas (SAM)",s:"Citas"},{n:"Seguros y coberturas",s:"Seguros"},{n:"Manejo de objeciones",s:"Objeciones"},{n:"Sistemas y herramientas",s:"Sistemas"},{n:"Evaluación final",s:"Final"}],
+  areas:[{n:"Conceptos básicos",s:"Conceptos"},{n:"SAM Citas",s:"SAM Citas"},{n:"VivoLife",s:"VivoLife"},{n:"BlueMeds",s:"BlueMeds"},{n:"Cotizador",s:"Cotizador"}],
   practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
 /* Migra la configuración antigua (una sola plantilla) al formato con varias plantillas */
@@ -1142,6 +1142,9 @@ function normalizeCfg(c){
       plan: c.plan || DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) };
     c.templates = [atp, CC_TEMPLATE()];
   }
+  /* Reemplaza las áreas de ejemplo de Contact Center por las reales si nunca se editaron */
+  const OLD_CC = "protocolo de atencion telefonica|agendamiento de citas (sam)|seguros y coberturas|manejo de objeciones|sistemas y herramientas|evaluacion final";
+  c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
   delete c.areas; delete c.practical; delete c.plan;
   return c;
 }
