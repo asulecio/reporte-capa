@@ -448,6 +448,9 @@ html.pm .kpis.nofinal{grid-template-columns:repeat(3,1fr)!important}
 .tpl-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;white-space:nowrap;padding-bottom:9px;cursor:pointer}
 .tpl-check input{width:16px;height:16px}
 @media (max-width:700px){.tpl-meta{grid-template-columns:1fr}}
+
+.row2.noplan{grid-template-columns:1fr}
+html.pm .row2.noplan{grid-template-columns:1fr!important}
 </style>
 </head>
 <body>
@@ -616,8 +619,8 @@ html.pm .kpis.nofinal{grid-template-columns:repeat(3,1fr)!important}
   </div>
 
   <!-- Fila inferior -->
-  <div class="grid row2">
-    <section class="card pad">
+  <div class="grid row2" id="row2">
+    <section class="card pad" id="planCard">
       <h3><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan de seguimiento en clínica</h3>
       <div class="tbl-wrap">
         <table>
@@ -829,6 +832,7 @@ const normTxt = t => (t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u0
 function finalArea(r){ return (r.areas||[]).find(a=>normTxt(a.n)==="evaluacion final"); }
 function getFinal(r){ const a = finalArea(r); return a ? (Number(a.v)||0) : (Number(r.final)||0); }
 function usesFinal(r){ let t = null; try { t = CFG.templates.find(t=>t.id===((r&&r.template)||"atp")); } catch(e){} return !(t && t.noFinal); }
+function usesPlan(r){ let t = null; try { t = CFG.templates.find(t=>t.id===((r&&r.template)||"atp")); } catch(e){} return !(t && t.noPlan); }
 function finTxt(r){ return usesFinal(r) ? getFinal(r)+"%" : "—"; }
 const SUMMARY_OK = "El colaborador finaliza satisfactoriamente su proceso de capacitación. Se recomienda acompañamiento durante sus primeros días en operación, principalmente en los aspectos identificados como oportunidades de seguimiento.";
 const SUMMARY_NO = "El colaborador concluye su proceso de capacitación, pero aún no alcanza el nivel requerido para la transición a clínica. Se recomienda un plan de refuerzo en los aspectos identificados como oportunidades de seguimiento antes de su incorporación a la operación.";
@@ -842,6 +846,7 @@ function updateKPIs(){
   else { fin.readOnly = false; fin.title = ""; }
   $("finalLink").hidden = !fa;
   { const uf = usesFinal(S); $("kpiFinal").hidden = !uf; $("kpis").classList.toggle("nofinal", !uf); }
+  { const up = usesPlan(S); $("planCard").hidden = !up; $("row2").classList.toggle("noplan", !up); }
   $("finalBar").style.width = S.final+"%";
   $("attBar").style.width = S.att+"%";
   const ok = avg>=PASS && (!usesFinal(S) || S.final>=PASS);
@@ -1141,7 +1146,7 @@ let CFG = {
     CC_TEMPLATE()
   ]
 };
-function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center", noFinal:true,
+function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center", noFinal:true, noPlan:true,
   areas:[{n:"Conceptos básicos",s:"Conceptos"},{n:"SAM Citas",s:"SAM Citas"},{n:"VivoLife",s:"VivoLife"},{n:"BlueMeds",s:"BlueMeds"},{n:"Cotizador",s:"Cotizador"}],
   practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
@@ -1155,7 +1160,7 @@ function normalizeCfg(c){
       plan: c.plan || DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) };
     c.templates = [atp, CC_TEMPLATE()];
   }
-  c.templates.forEach(t=>{ if (t.id==="cc" && t.noFinal===undefined) t.noFinal = true; });
+  c.templates.forEach(t=>{ if (t.id==="cc" && t.noFinal===undefined) t.noFinal = true; if (t.id==="cc" && t.noPlan===undefined) t.noPlan = true; });
   /* Reemplaza las áreas de ejemplo de Contact Center por las reales si nunca se editaron */
   const OLD_CC = "protocolo de atencion telefonica|agendamiento de citas (sam)|seguros y coberturas|manejo de objeciones|sistemas y herramientas|evaluacion final";
   c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
@@ -1439,7 +1444,8 @@ function renderTraining(){
     <div class="tpl-meta">
       <div><label class="flabel" for="tName">Nombre de la plantilla</label><input class="tin" id="tName" data-tf="name" value="${esc(T.name)}"></div>
       <div><label class="flabel" for="tRole">Puesto por defecto</label><input class="tin" id="tRole" data-tf="role" value="${esc(T.role||"")}" placeholder="Ej. Asesor Multiskills"></div>
-      <label class="tpl-check"><input type="checkbox" data-tflag ${T.noFinal?"":"checked"}> Usa «Evaluación final»</label>
+      <div style="display:grid;gap:4px"><label class="tpl-check" style="padding-bottom:0"><input type="checkbox" data-tflag ${T.noFinal?"":"checked"}> Usa «Evaluación final»</label>
+      <label class="tpl-check" style="padding-bottom:0"><input type="checkbox" data-tplan ${T.noPlan?"":"checked"}> Incluye plan de seguimiento</label></div>
       ${draft.templates.length>1 ? `<button class="btn danger" data-tpldel>Eliminar plantilla</button>` : ""}
     </div>
   </section>
@@ -1457,12 +1463,12 @@ function renderTraining(){
       <button class="add" data-addk="practical">+ Agregar aspecto</button>
     </section>
   </div>
-  <section class="card pad">
+  ${T.noPlan ? "" : `<section class="card pad">
     <h3><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan de seguimiento en clínica</h3>
     <div class="frow plan small" style="margin-bottom:4px"><span>Seguimiento</span><span>Responsable</span><span>Fecha</span><span></span></div>
     ${T.plan.map((p,i)=>`<div class="frow plan"><input class="tin" data-k="plan" data-i="${i}" data-f="s" value="${esc(p.s)}" aria-label="Seguimiento"><input class="tin" data-k="plan" data-i="${i}" data-f="r" value="${esc(p.r)}" aria-label="Responsable"><input class="tin" data-k="plan" data-i="${i}" data-f="f" value="${esc(p.f)}" aria-label="Fecha"><button class="xbtn" data-del="plan" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
     <button class="add" data-addk="plan">+ Agregar seguimiento</button>
-  </section>`;
+  </section>`}`;
 }
 
 /* =========================================================
@@ -1504,6 +1510,7 @@ function renderSettings(){
   el.addEventListener("input",e=>{
     const t = e.target;
     if (t.dataset.tflag !== undefined){ draft.templates[tIdx].noFinal = !t.checked; }
+    else if (t.dataset.tplan !== undefined){ draft.templates[tIdx].noPlan = !t.checked; cfgDirty = true; $("tMsg").textContent = "Cambios sin guardar"; renderTraining(); $("tMsg").textContent = "Cambios sin guardar"; return; }
     else if (t.dataset.tf){ draft.templates[tIdx][t.dataset.tf] = t.value; }
     else if (t.dataset.single){ draft[t.dataset.single] = t.dataset.single==="pass" ? clampPass(t.value) : t.value; }
     else if (t.dataset.k){
@@ -1544,7 +1551,7 @@ function renderSettings(){
     }
     if (e.target.closest("[data-save]")){
       const clean = clone(draft);
-      clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(), noFinal:!!t.noFinal,
+      clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(), noFinal:!!t.noFinal, noPlan:!!t.noPlan,
         areas: t.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()})),
         practical: t.practical.map(x=>x.trim()).filter(Boolean),
         plan: t.plan.filter(p=>p.s.trim()) }));
