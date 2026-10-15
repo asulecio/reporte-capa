@@ -438,6 +438,16 @@ html.locked .login{display:grid;position:fixed;inset:0;z-index:100;place-items:c
 .tpl-meta{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
 .tpl-badge{display:inline-block;font-size:10.5px;font-weight:700;border-radius:8px;padding:1px 6px;background:var(--head);color:#1f5aa3;margin-left:4px;vertical-align:middle}
 @media (max-width:700px){.tpl-meta{grid-template-columns:1fr}}
+
+/* Plantillas sin evaluación final */
+.kpis.nofinal{grid-template-columns:repeat(3,1fr)}
+html.pm .kpis.nofinal{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:1100px){.kpis.nofinal{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.kpis.nofinal{grid-template-columns:1fr}}
+.tpl-meta{grid-template-columns:1fr 1fr auto auto}
+.tpl-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;white-space:nowrap;padding-bottom:9px;cursor:pointer}
+.tpl-check input{width:16px;height:16px}
+@media (max-width:700px){.tpl-meta{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -536,8 +546,8 @@ html.locked .login{display:grid;position:fixed;inset:0;z-index:100;place-items:c
   </section>
 
   <!-- KPIs -->
-  <div class="grid kpis">
-    <div class="card kpi">
+  <div class="grid kpis" id="kpis">
+    <div class="card kpi" id="kpiFinal">
       <div class="kicon" style="background:#e3eefc;color:#2f75d6"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
       <div class="kbody"><div class="klabel">Evaluación final</div>
         <div class="kvalue"><input type="number" min="0" max="100" id="f-final" aria-label="Evaluación final">%</div>
@@ -818,6 +828,8 @@ $("plan").addEventListener("click",e=>{
 const normTxt = t => (t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
 function finalArea(r){ return (r.areas||[]).find(a=>normTxt(a.n)==="evaluacion final"); }
 function getFinal(r){ const a = finalArea(r); return a ? (Number(a.v)||0) : (Number(r.final)||0); }
+function usesFinal(r){ let t = null; try { t = CFG.templates.find(t=>t.id===((r&&r.template)||"atp")); } catch(e){} return !(t && t.noFinal); }
+function finTxt(r){ return usesFinal(r) ? getFinal(r)+"%" : "—"; }
 const SUMMARY_OK = "El colaborador finaliza satisfactoriamente su proceso de capacitación. Se recomienda acompañamiento durante sus primeros días en operación, principalmente en los aspectos identificados como oportunidades de seguimiento.";
 const SUMMARY_NO = "El colaborador concluye su proceso de capacitación, pero aún no alcanza el nivel requerido para la transición a clínica. Se recomienda un plan de refuerzo en los aspectos identificados como oportunidades de seguimiento antes de su incorporación a la operación.";
 function isAutoSummary(){ return S.summaryAuto === true || !S.summary || S.summary===SUMMARY_OK || S.summary===SUMMARY_NO; }
@@ -829,9 +841,10 @@ function updateKPIs(){
   if (fa){ S.final = Number(fa.v)||0; fin.value = S.final; fit(fin); fin.readOnly = true; fin.title = "Se toma del área «Evaluación final» de la tabla"; }
   else { fin.readOnly = false; fin.title = ""; }
   $("finalLink").hidden = !fa;
+  { const uf = usesFinal(S); $("kpiFinal").hidden = !uf; $("kpis").classList.toggle("nofinal", !uf); }
   $("finalBar").style.width = S.final+"%";
   $("attBar").style.width = S.att+"%";
-  const ok = avg>=PASS && S.final>=PASS;
+  const ok = avg>=PASS && (!usesFinal(S) || S.final>=PASS);
   const st = $("statusKpi"), ic = $("statusIcon");
   st.textContent = ok ? "APROBADO" : "REQUIERE REFUERZO";
   st.style.color = ok ? "var(--green)" : "#c9811d";
@@ -869,7 +882,7 @@ function fillFields(){
 }
 function compute(r){
   const avg = r.areas && r.areas.length ? Math.round(r.areas.reduce((t,a)=>t+a.v,0)/r.areas.length) : 0;
-  return {avg, ok: avg>=PASS && getFinal(r)>=PASS};
+  return {avg, ok: avg>=PASS && (!usesFinal(r) || getFinal(r)>=PASS)};
 }
 function updateSaveState(){
   const el = $("saveState");
@@ -975,7 +988,7 @@ function renderPanel(){
       ${g.all.map(h=>{ const c = compute(h); return `
         <button class="hitem ${h.id===currentId?"cur":""}" data-id="${esc(h.id)}">
           <b>${esc(h.period||"Sin período")}${CFG.templates.length>1 ? `<span class="tpl-badge">${esc(tplName(h.template))}</span>` : ""}</b>
-          <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${getFinal(h)}%</span>
+          <span class="pill ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"} · ${usesFinal(h) ? getFinal(h)+"%" : compute(h).avg+"%"}</span>
           <small>Guardado ${fmtDate(h.updatedAt)}</small>
         </button>`; }).join("")}
       <button class="hnew" data-newfor="${esc(g.latest.id)}">+ Nuevo reporte para ${esc((r.name||"").split(" ")[0])}</button>
@@ -1128,7 +1141,7 @@ let CFG = {
     CC_TEMPLATE()
   ]
 };
-function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center",
+function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de Contact Center", noFinal:true,
   areas:[{n:"Conceptos básicos",s:"Conceptos"},{n:"SAM Citas",s:"SAM Citas"},{n:"VivoLife",s:"VivoLife"},{n:"BlueMeds",s:"BlueMeds"},{n:"Cotizador",s:"Cotizador"}],
   practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
@@ -1142,6 +1155,7 @@ function normalizeCfg(c){
       plan: c.plan || DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) };
     c.templates = [atp, CC_TEMPLATE()];
   }
+  c.templates.forEach(t=>{ if (t.id==="cc" && t.noFinal===undefined) t.noFinal = true; });
   /* Reemplaza las áreas de ejemplo de Contact Center por las reales si nunca se editaron */
   const OLD_CC = "protocolo de atencion telefonica|agendamiento de citas (sam)|seguros y coberturas|manejo de objeciones|sistemas y herramientas|evaluacion final";
   c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
@@ -1279,7 +1293,8 @@ function renderHome(){
   }
   const ok = latest.filter(r=>compute(r).ok);
   const pct = Math.round(ok.length*100/latest.length);
-  const avgFinal = Math.round(latest.reduce((t,r)=>t+getFinal(r),0)/latest.length);
+  const withFinal = latest.filter(usesFinal);
+  const avgFinal = withFinal.length ? Math.round(withFinal.reduce((t,r)=>t+getFinal(r),0)/withFinal.length) : null;
   const avgAtt = Math.round(latest.reduce((t,r)=>t+(Number(r.att)||0),0)/latest.length);
 
   // promedio por área
@@ -1301,7 +1316,7 @@ function renderHome(){
   <div class="grid stats">
     <div class="card stat"><div class="l">Colaboradores</div><div class="n">${latest.length}</div><div class="s">con reporte CAPA</div></div>
     <div class="card stat"><div class="l">Aprobados</div><div class="n" style="color:var(--green)">${pct}%</div><div class="s">${ok.length} de ${latest.length} en su último reporte</div></div>
-    <div class="card stat"><div class="l">Evaluación final promedio</div><div class="n">${avgFinal}%</div><div class="bar" style="margin-top:8px"><i style="width:${avgFinal}%;background:var(--blue)"></i></div></div>
+    <div class="card stat"><div class="l">Evaluación final promedio</div><div class="n">${avgFinal===null?"—":avgFinal+"%"}</div><div class="bar" style="margin-top:8px"><i style="width:${avgFinal||0}%;background:var(--blue)"></i></div></div>
     <div class="card stat"><div class="l">Asistencia promedio</div><div class="n">${avgAtt}%</div><div class="bar" style="margin-top:8px"><i style="width:${avgAtt}%;background:var(--teal)"></i></div></div>
   </div>
   <div class="grid home2">
@@ -1324,7 +1339,7 @@ function renderHome(){
     </section>
     <section class="card pad soft-orange">
       <h3><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Requieren refuerzo</h3>
-      ${need.length ? `<div class="items">${need.map(r=>`<div class="item rowlink" data-open="${esc(r.id)}"><span class="ico" style="background:var(--orange)">!</span><span class="txt"><b>${esc(r.name)}</b><br><span class="small">${esc(r.clinic||"")} · promedio ${compute(r).avg}% · final ${getFinal(r)}%</span></span></div>`).join("")}</div>`
+      ${need.length ? `<div class="items">${need.map(r=>`<div class="item rowlink" data-open="${esc(r.id)}"><span class="ico" style="background:var(--orange)">!</span><span class="txt"><b>${esc(r.name)}</b><br><span class="small">${esc(r.clinic||"")} · promedio ${compute(r).avg}%${usesFinal(r) ? " · final "+getFinal(r)+"%" : ""}</span></span></div>`).join("")}</div>`
         : `<div class="small">Todos los colaboradores aprobaron su último reporte.</div>`}
     </section>
   </div>`;
@@ -1369,7 +1384,7 @@ function renderReports(){
     : `<table><thead><tr><th>Colaborador</th><th>Plantilla</th><th>Clínica</th><th>Período</th><th class="center">Final</th><th class="center">Promedio</th><th class="center">Asistencia</th><th>Resultado</th><th>Guardado</th></tr></thead>
       <tbody>${rows.map(r=>{ const c = compute(r); return `<tr class="rowlink" data-open="${esc(r.id)}">
         <td><b style="font-weight:600">${esc(r.name)}</b></td><td>${esc(tplName(r.template))}</td><td>${esc(r.clinic||"")}</td><td>${esc(r.period||"")}</td>
-        <td class="center">${getFinal(r)}%</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
+        <td class="center">${finTxt(r)}</td><td class="center">${c.avg}%</td><td class="center">${r.att}%</td>
         <td><span class="pill inline ${c.ok?"ok":"no"}">${c.ok?"Aprobado":"Refuerzo"}</span></td><td class="small">${fmtDate(r.updatedAt)}</td></tr>`; }).join("")}</tbody></table>`;
   $("rMsg").textContent = reports.length ? `${rows.length} de ${reports.length} reportes` : "";
 }
@@ -1391,7 +1406,7 @@ async function exportCsv(){
   const areaNames = [...new Set(rows.flatMap(r=>(r.areas||[]).map(a=>a.n)))];
   const cell = v => `"${String(v??"").replace(/"/g,'""')}"`;
   const head = ["Colaborador","Plantilla","Puesto","Clínica","Fecha de ingreso","Período CAPA","Capacitador","Evaluación final","Promedio","Asistencia","Resultado",...areaNames,"Observaciones","Guardado"];
-  const lines = rows.map(r=>{ const c = compute(r); return [r.name,tplName(r.template),r.role,r.clinic,r.date,r.period,r.trainer,getFinal(r),c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
+  const lines = rows.map(r=>{ const c = compute(r); return [r.name,tplName(r.template),r.role,r.clinic,r.date,r.period,r.trainer,usesFinal(r)?getFinal(r):"",c.avg,r.att,c.ok?"Aprobado":"Requiere refuerzo",
     ...areaNames.map(n=>{ const a=(r.areas||[]).find(x=>x.n===n); return a?a.v:""; }), r.notes, fmtDate(r.updatedAt)].map(cell).join(","); });
   const data = "\ufeff" + [head.map(cell).join(","), ...lines].join("\r\n");
   const filename = `reportes-capa-${new Date().toISOString().slice(0,10)}.csv`;
@@ -1424,6 +1439,7 @@ function renderTraining(){
     <div class="tpl-meta">
       <div><label class="flabel" for="tName">Nombre de la plantilla</label><input class="tin" id="tName" data-tf="name" value="${esc(T.name)}"></div>
       <div><label class="flabel" for="tRole">Puesto por defecto</label><input class="tin" id="tRole" data-tf="role" value="${esc(T.role||"")}" placeholder="Ej. Asesor Multiskills"></div>
+      <label class="tpl-check"><input type="checkbox" data-tflag ${T.noFinal?"":"checked"}> Usa «Evaluación final»</label>
       ${draft.templates.length>1 ? `<button class="btn danger" data-tpldel>Eliminar plantilla</button>` : ""}
     </div>
   </section>
@@ -1487,7 +1503,8 @@ function renderSettings(){
   const el = $(id);
   el.addEventListener("input",e=>{
     const t = e.target;
-    if (t.dataset.tf){ draft.templates[tIdx][t.dataset.tf] = t.value; }
+    if (t.dataset.tflag !== undefined){ draft.templates[tIdx].noFinal = !t.checked; }
+    else if (t.dataset.tf){ draft.templates[tIdx][t.dataset.tf] = t.value; }
     else if (t.dataset.single){ draft[t.dataset.single] = t.dataset.single==="pass" ? clampPass(t.value) : t.value; }
     else if (t.dataset.k){
       const arr = cfgArr(t.dataset.k), i = +t.dataset.i;
@@ -1527,7 +1544,7 @@ function renderSettings(){
     }
     if (e.target.closest("[data-save]")){
       const clean = clone(draft);
-      clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(),
+      clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(), noFinal:!!t.noFinal,
         areas: t.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()})),
         practical: t.practical.map(x=>x.trim()).filter(Boolean),
         plan: t.plan.filter(p=>p.s.trim()) }));
