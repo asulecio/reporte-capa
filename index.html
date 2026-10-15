@@ -1150,6 +1150,15 @@ function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de
   areas:[{n:"Conceptos básicos",s:"Conceptos"},{n:"SAM Citas",s:"SAM Citas"},{n:"VivoLife",s:"VivoLife"},{n:"BlueMeds",s:"BlueMeds"},{n:"Cotizador",s:"Cotizador"}],
   practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
+/* Plantillas de Asesor Telefónico (sin evaluación final ni plan de seguimiento, como Contact Center) */
+function PHONE_TEMPLATE(id, name, areas){ return { id, name, role:name, noFinal:true, noPlan:true,
+  areas: areas.map(([n,s])=>({n,s})),
+  practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
+  plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
+const SEED_TEMPLATES = () => [
+  PHONE_TEMPLATE("atcr", "Asesor Telefónico CR", [["Conceptos generales","Conceptos"],["SAM Citas","SAM Citas"],["VivoLife","VivoLife"]]),
+  PHONE_TEMPLATE("atfar", "Asesor Telefónico Farmacia", [["Conceptos generales","Conceptos"],["SAM Citas","SAM Citas"],["VivoLife","VivoLife"],["BlueMeds","BlueMeds"],["Cotizador","Cotizador"]])
+];
 /* Migra la configuración antigua (una sola plantilla) al formato con varias plantillas */
 function normalizeCfg(c){
   c = clone(c||{});
@@ -1164,9 +1173,13 @@ function normalizeCfg(c){
   /* Reemplaza las áreas de ejemplo de Contact Center por las reales si nunca se editaron */
   const OLD_CC = "protocolo de atencion telefonica|agendamiento de citas (sam)|seguros y coberturas|manejo de objeciones|sistemas y herramientas|evaluacion final";
   c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
+  /* Agrega una sola vez las plantillas nuevas (si luego se eliminan, no vuelven a aparecer) */
+  if (!Array.isArray(c.seeded)) c.seeded = ["atp","cc"];
+  SEED_TEMPLATES().forEach(t=>{ if (!c.seeded.includes(t.id)){ if (!c.templates.some(x=>x.id===t.id)) c.templates.push(t); c.seeded.push(t.id); } });
   delete c.areas; delete c.practical; delete c.plan;
   return c;
 }
+CFG = normalizeCfg(CFG);
 function getTpl(id){ return CFG.templates.find(t=>t.id===id) || CFG.templates[0]; }
 function tplName(id){ const t = CFG.templates.find(t=>t.id===(id||"atp")); return t ? t.name : ""; }
 
