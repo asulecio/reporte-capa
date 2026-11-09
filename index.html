@@ -451,6 +451,13 @@ html.pm .kpis.nofinal{grid-template-columns:repeat(3,1fr)!important}
 
 .row2.noplan{grid-template-columns:1fr}
 html.pm .row2.noplan{grid-template-columns:1fr!important}
+
+/* Descripción breve de un área (ej. aseguradoras en Seguros) */
+#areaTable td.center{white-space:nowrap}
+.xlabels div{overflow-wrap:normal!important;word-break:normal;hyphens:auto}
+.area-desc{font-size:11.5px;color:var(--muted);padding:0 4px 2px;line-height:1.35}
+.frow-desc{margin:-4px 40px 10px 0}
+.frow-desc .tin{font-size:12px;padding:6px 9px}
 </style>
 </head>
 <body>
@@ -749,7 +756,7 @@ $("photoIn").addEventListener("change",e=>{
 function renderAreas(){
   $("areaTable").innerHTML = S.areas.map((a,i)=>`
     <tr>
-      <td><input class="cell-in" value="${esc(a.n)}" data-area="${i}" data-f="n" aria-label="Nombre del área"></td>
+      <td><input class="cell-in" value="${esc(a.n)}" data-area="${i}" data-f="n" aria-label="Nombre del área">${a.d ? `<div class="area-desc">${esc(a.d)}</div>` : ""}</td>
       <td class="center"><input class="cell-in num-in" type="number" min="0" max="100" value="${a.v}" data-area="${i}" data-f="v" aria-label="Resultado ${esc(a.n)}">%</td>
       <td class="center"><span class="dot ${a.v<PASS?"y":""}" id="dot${i}"></span></td>
     </tr>`).join("");
@@ -1150,6 +1157,16 @@ function CC_TEMPLATE(){ return { id:"cc", name:"Contact Center", role:"Agente de
   areas:[{n:"Conceptos básicos",s:"Conceptos"},{n:"SAM Citas",s:"SAM Citas"},{n:"VivoLife",s:"VivoLife"},{n:"BlueMeds",s:"BlueMeds"},{n:"Cotizador",s:"Cotizador"}],
   practical:["Atención telefónica","Manejo de sistemas","Agendamiento","Resolución de casos","Apego al guion"],
   plan: DEFAULTS.plan.map(p=>({s:p.s, r:p.r, f:p.f})) }; }
+/* Áreas de ATP (Seguros lleva una descripción con las aseguradoras) */
+const ATP_AREAS = () => [
+  {n:"Evaluación Conceptos Básicos", s:"Conceptos"},
+  {n:"Evaluación Práctica Sam Citas", s:"SAM Citas"},
+  {n:"Cotización de Servicios", s:"Cotización"},
+  {n:"Facturación Odoo", s:"Odoo"},
+  {n:"Seguros", s:"Seguros", d:"Palig, Mediprocesos, Mapfre, Universales, Bam, Aseguradora General"},
+  {n:"VivoLife", s:"VivoLife"},
+  {n:"BlueMeds", s:"BlueMeds"}
+];
 /* Plantillas de Asesor Telefónico (sin evaluación final ni plan de seguimiento, como Contact Center) */
 function PHONE_TEMPLATE(id, name, areas){ return { id, name, role:name, noFinal:true, noPlan:true,
   areas: areas.map(([n,s])=>({n,s})),
@@ -1173,6 +1190,8 @@ function normalizeCfg(c){
   /* Reemplaza las áreas de ejemplo de Contact Center por las reales si nunca se editaron */
   const OLD_CC = "protocolo de atencion telefonica|agendamiento de citas (sam)|seguros y coberturas|manejo de objeciones|sistemas y herramientas|evaluacion final";
   c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
+  if (!Array.isArray(c.migr)) c.migr = [];
+  if (!c.migr.includes("atp-areas-v2")){ const atp = c.templates.find(t=>t.id==="atp"); if (atp) atp.areas = ATP_AREAS(); c.migr.push("atp-areas-v2"); }
   /* Agrega una sola vez las plantillas nuevas (si luego se eliminan, no vuelven a aparecer) */
   if (!Array.isArray(c.seeded)) c.seeded = ["atp","cc"];
   SEED_TEMPLATES().forEach(t=>{ if (!c.seeded.includes(t.id)){ if (!c.templates.some(x=>x.id===t.id)) c.templates.push(t); c.seeded.push(t.id); } });
@@ -1193,7 +1212,13 @@ function syncWithTemplate(){
   const T = getTpl(S.template);
   const key = t => normTxt(t);
   const oldA = new Map((S.areas||[]).map(a=>[key(a.n),a]));
-  const areas = T.areas.map(t=>{ const o = oldA.get(key(t.n)); return {n:t.n, s:t.s||t.n, v:o ? (Number(o.v)||0) : 0}; });
+  const findOld = n => {
+    const k = key(n), o = oldA.get(k) || oldA.get(k.replace(/^evaluacion (practica )?/,""));
+    if (o) return o;
+    const parts = (S.areas||[]).filter(a=>key(a.n).startsWith(k+" - "));   /* ej. "Seguros - Palig" → promedio */
+    return parts.length ? {v: Math.round(parts.reduce((t,a)=>t+(Number(a.v)||0),0)/parts.length)} : null;
+  };
+  const areas = T.areas.map(t=>{ const o = findOld(t.n); return Object.assign({n:t.n, s:t.s||t.n, v:o ? (Number(o.v)||0) : 0}, t.d ? {d:t.d} : {}); });
   const oldP = new Map((S.practical||[]).map(p=>[key(p.n),p]));
   const practical = T.practical.map(n=>{ const o = oldP.get(key(n)); return {n, a:o ? !!o.a : true}; });
   const oldF = new Map((S.plan||[]).map(p=>[key(p.s),p]));
@@ -1467,8 +1492,8 @@ function renderTraining(){
   <div class="grid form-grid" style="margin-top:14px">
     <section class="card pad">
       <h3><svg class="i" viewBox="0 0 24 24"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>Áreas evaluadas</h3>
-      <div class="hint2">La etiqueta corta es la que aparece debajo de cada barra de la gráfica. Si agregas un área llamada «Evaluación final», su nota se usa como evaluación final.</div>
-      ${T.areas.map((a,i)=>`<div class="frow"><input class="tin" data-k="areas" data-i="${i}" data-f="n" value="${esc(a.n)}" aria-label="Área"><input class="tin short" data-k="areas" data-i="${i}" data-f="s" value="${esc(a.s)}" placeholder="Etiqueta corta" aria-label="Etiqueta corta"><button class="xbtn" data-del="areas" data-i="${i}" aria-label="Quitar">×</button></div>`).join("")}
+      <div class="hint2">La etiqueta corta es la que aparece debajo de cada barra de la gráfica. La descripción aparece en letra pequeña debajo del área en el reporte. Si agregas un área llamada «Evaluación final», su nota se usa como evaluación final.</div>
+      ${T.areas.map((a,i)=>`<div class="frow"><input class="tin" data-k="areas" data-i="${i}" data-f="n" value="${esc(a.n)}" aria-label="Área"><input class="tin short" data-k="areas" data-i="${i}" data-f="s" value="${esc(a.s)}" placeholder="Etiqueta corta" aria-label="Etiqueta corta"><button class="xbtn" data-del="areas" data-i="${i}" aria-label="Quitar">×</button></div><div class="frow-desc"><input class="tin" data-k="areas" data-i="${i}" data-f="d" value="${esc(a.d||"")}" placeholder="Descripción breve (opcional)" aria-label="Descripción de ${esc(a.n)}"></div>`).join("")}
       <button class="add" data-addk="areas">+ Agregar área</button>
     </section>
     <section class="card pad">
@@ -1567,7 +1592,7 @@ function renderSettings(){
     if (e.target.closest("[data-save]")){
       const clean = clone(draft);
       clean.templates = clean.templates.map(t=>({ id:t.id, name:(t.name||"").trim() || "Sin nombre", role:(t.role||"").trim(), noFinal:!!t.noFinal, noPlan:!!t.noPlan,
-        areas: t.areas.filter(a=>a.n.trim()).map(a=>({n:a.n.trim(), s:(a.s||a.n).trim()})),
+        areas: t.areas.filter(a=>a.n.trim()).map(a=>Object.assign({n:a.n.trim(), s:(a.s||a.n).trim()}, (a.d||"").trim() ? {d:a.d.trim()} : {})),
         practical: t.practical.map(x=>x.trim()).filter(Boolean),
         plan: t.plan.filter(p=>p.s.trim()) }));
       const emptyT = clean.templates.find(t=>!t.areas.length);
