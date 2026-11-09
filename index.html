@@ -1192,6 +1192,7 @@ function normalizeCfg(c){
   c.templates.forEach(t=>{ if (t.id==="cc" && (t.areas||[]).map(a=>normTxt(a.n)).join("|")===OLD_CC) t.areas = CC_TEMPLATE().areas; });
   if (!Array.isArray(c.migr)) c.migr = [];
   if (!c.migr.includes("atp-areas-v2")){ const atp = c.templates.find(t=>t.id==="atp"); if (atp) atp.areas = ATP_AREAS(); c.migr.push("atp-areas-v2"); }
+  if (!c.migr.includes("atp-nofinal")){ const atp = c.templates.find(t=>t.id==="atp"); if (atp) atp.noFinal = true; c.migr.push("atp-nofinal"); }
   /* Agrega una sola vez las plantillas nuevas (si luego se eliminan, no vuelven a aparecer) */
   if (!Array.isArray(c.seeded)) c.seeded = ["atp","cc"];
   SEED_TEMPLATES().forEach(t=>{ if (!c.seeded.includes(t.id)){ if (!c.templates.some(x=>x.id===t.id)) c.templates.push(t); c.seeded.push(t.id); } });
